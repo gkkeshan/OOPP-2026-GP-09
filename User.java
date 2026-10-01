@@ -1,23 +1,23 @@
 public class User {
-    private String name;
-    private double weight; // kilograms
-    private double height; // meters
+    private final String name;
+    private final double weightKg;
+    private final double heightM;
 
-    public User(String name, double weight, double height) {
+    public User(String name, double weightKg, double heightM) {
         this.name = name;
-        this.weight = weight;
-        this.height = height;
+        this.weightKg = weightKg;
+        this.heightM = heightM;
     }
 
     public String getName() {
         return name;
     }
 
-    public double getWeight() {
-        return weight;
+    public double getWeightKg() {
+        return weightKg;
     }
 
-    public double getHeight() {
-        return height;
+    public double getHeightM() {
+        return heightM;
     }
 }
