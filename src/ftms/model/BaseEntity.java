@@ -1,4 +1,4 @@
-package com.fot.management.models;
+package ftms.model;
 
 
 public abstract class BaseEntity {
@@ -13,7 +13,6 @@ public abstract class BaseEntity {
     public String toString() {
         return display();
     }
-
 
 
     protected static String requireText(String value, String field, int maxLength) {

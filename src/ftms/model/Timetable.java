@@ -1,4 +1,4 @@
-package com.fot.management.models;
+package ftms.model;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -8,12 +8,12 @@ import java.time.LocalTime;
 public class Timetable extends BaseEntity {
 
     private int timetableId;
-    private String courseCode;
-    private int venueId;
+    private String courseCode;       // SCHEDULED (Course 1 : M TimeTable)
+    private int venueId;             // Held_In   (TimeTable M : 1 Venue)
     private LocalTime startTime;
     private LocalTime endTime;
     private SessionType sessionType;
-    private LocalDate sessionDate;
+    private LocalDate sessionDate;   // column add_date
 
     public Timetable(int timetableId, String courseCode, int venueId,
                      LocalTime startTime, LocalTime endTime, SessionType sessionType, LocalDate sessionDate) {

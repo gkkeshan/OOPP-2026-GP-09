@@ -1,4 +1,4 @@
-package com.fot.management.models;
+package ftms.model;
 
 import java.time.LocalDate;
 
@@ -6,8 +6,8 @@ import java.time.LocalDate;
 public class Enrollment extends BaseEntity {
 
     private int enrollmentId;
-    private int studentId;
-    private String courseCode;
+    private int studentId;            // HAS (Undergraduate 1 : M Enrollment)
+    private String courseCode;        // FOR (Course 1 : M Enrollment)
     private String academicYear;
     private String semester;
     private LocalDate enrollmentDate;

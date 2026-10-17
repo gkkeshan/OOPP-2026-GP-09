@@ -1,4 +1,4 @@
-package com.fot.management.models;
+package ftms.model;
 
 import java.time.LocalDate;
 

@@ -1,9 +1,9 @@
-package com.fot.management.models;
+package ftms.model;
 
 
 public class Department extends BaseEntity {
 
-    private int departmentId;
+    private int departmentId;          // 0 = not saved in the database yet
     private String departmentName;
 
     public Department(int departmentId, String departmentName) {

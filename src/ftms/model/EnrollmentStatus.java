@@ -1,4 +1,4 @@
-package com.fot.management.models;
+package ftms.model;
 
 
 public enum EnrollmentStatus {
@@ -29,3 +29,5 @@ public enum EnrollmentStatus {
         return dbValue;
     }
 }
+
+

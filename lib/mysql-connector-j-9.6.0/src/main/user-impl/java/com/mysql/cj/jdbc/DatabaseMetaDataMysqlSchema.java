@@ -655,7 +655,7 @@ public class DatabaseMetaDataMysqlSchema extends DatabaseMetaData {
                     }
                     ResultSet functionsRs = functionsStmt.executeQuery();
                     while (functionsRs.next()) {
-                        String funcDb = functionsRs.getString("db");
+                        String funcDb = functionsRs.getString("ftms/db");
                         String functionName = functionsRs.getString("name");
                         byte[][] row = null;
                         if (targetMetaData == StoredRoutineType.PROCEDURE) { // Exposing functions as procedures.
@@ -703,7 +703,7 @@ public class DatabaseMetaDataMysqlSchema extends DatabaseMetaData {
                     }
                     ResultSet proceduresRs = proceduresStmt.executeQuery();
                     while (proceduresRs.next()) {
-                        String procDb = proceduresRs.getString("db");
+                        String procDb = proceduresRs.getString("ftms/db");
                         String procedureName = proceduresRs.getString("name");
                         byte[][] row = new byte[9][];
                         row[0] = chooseBasedOnDatabaseTerm(() -> s2b(procDb), () -> s2b("def"));                            // PROCEDURE_CAT

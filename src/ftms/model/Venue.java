@@ -1,4 +1,5 @@
-package com.fot.management.models;
+package ftms.model;
+
 
 public class Venue extends BaseEntity {
 
