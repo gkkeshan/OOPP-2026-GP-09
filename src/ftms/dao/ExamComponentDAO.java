@@ -1,7 +1,7 @@
 package ftms.dao;
 
 import ftms.config.DBConnection;
-import model.Evaluation;
+import ftms.model.Evaluation;
 
 import java.sql.*;
 import java.util.ArrayList;

@@ -1,50 +1,51 @@
 package ftms.dao;
 
-import com.fot.model.Grade;
-import com.fot.util.DBConnection;
+import ftms.model.Grade;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Read-only access to the grading scale; the scale is fixed data, so no insert/update/delete. */
 public class GradeDAO {
+    private static final List<Grade> GRADES = List.of(
+            new Grade("A+", 4.00, 80, 100, true),
+            new Grade("A", 3.75, 75, 79, true),
+            new Grade("A-", 3.50, 70, 74, true),
+            new Grade("B+", 3.25, 65, 69, true),
+            new Grade("B", 3.00, 60, 64, true),
+            new Grade("B-", 2.75, 55, 59, true),
+            new Grade("C+", 2.50, 50, 54, true),
+            new Grade("C", 2.25, 45, 49, true),
+            new Grade("C-", 2.00, 40, 44, true),
+            new Grade("D", 0.00, 30, 39, false),
+            new Grade("E", 0.00, 0, 29, false)
+    );
 
-    private Grade map(ResultSet rs) throws SQLException {
-        return new Grade(rs.getString("letter"), rs.getDouble("grade_point"),
-                rs.getDouble("min_marks"), rs.getDouble("max_marks"), rs.getBoolean("is_pass"));
+    public List<Grade> findAll() {
+        return GRADES.stream()
+                .map(grade -> new Grade(grade.getLetter(), grade.getGradePoint(),
+                        grade.getMinMarks(), grade.getMaxMarks(), grade.isPass()))
+                .toList();
     }
 
-    public List<Grade> findAll() throws SQLException {
-        List<Grade> list = new ArrayList<>();
-        try (Connection c = DBConnection.getConnection();
-             Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM grade_scale ORDER BY min_marks DESC")) {
-            while (rs.next()) list.add(map(rs));
-        }
-        return list;
+    public Grade findByMarks(double marks) {
+        if (!Double.isFinite(marks) || marks < 0 || marks > 100) return null;
+        int wholeMarks = (int) Math.floor(marks);
+        return GRADES.stream()
+                .filter(grade -> wholeMarks >= grade.getMinMarks()
+                        && wholeMarks <= grade.getMaxMarks())
+                .findFirst()
+                .map(grade -> new Grade(grade.getLetter(), grade.getGradePoint(),
+                        grade.getMinMarks(), grade.getMaxMarks(), grade.isPass()))
+                .orElse(null);
     }
 
-    /** Finds the grade band a final mark falls in (e.g. 77 -> A). Marks are rounded down to a whole number. */
-    public Grade findByMarks(double marks) throws SQLException {
-        int whole = (int) Math.floor(marks);
-        try (Connection c = DBConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT * FROM grade_scale WHERE ? BETWEEN min_marks AND max_marks")) {
-            ps.setInt(1, whole);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? map(rs) : null;
-            }
-        }
-    }
-
-    public Grade findByLetter(String letter) throws SQLException {
-        try (Connection c = DBConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement("SELECT * FROM grade_scale WHERE letter=?")) {
-            ps.setString(1, letter);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? map(rs) : null;
-            }
-        }
+    public Grade findByLetter(String letter) {
+        if (letter == null) return null;
+        return GRADES.stream()
+                .filter(grade -> grade.getLetter().equalsIgnoreCase(letter.trim()))
+                .findFirst()
+                .map(grade -> new Grade(grade.getLetter(), grade.getGradePoint(),
+                        grade.getMinMarks(), grade.getMaxMarks(), grade.isPass()))
+                .orElse(null);
     }
 }

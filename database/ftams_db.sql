@@ -26,6 +26,7 @@ DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS medical;
 DROP TABLE IF EXISTS attendance_record;
 DROP TABLE IF EXISTS mark;
+DROP TABLE IF EXISTS semester_result;
 DROP TABLE IF EXISTS evaluation;
 DROP TABLE IF EXISTS enrollment;
 DROP TABLE IF EXISTS course_material;
@@ -241,7 +242,28 @@ CREATE TABLE enrollment (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------------
--- 13. EVALUATION
+-- 13. SEMESTER_RESULT
+-- ---------------------------------------------------------------------------
+CREATE TABLE semester_result (
+                               result_id     INT           NOT NULL AUTO_INCREMENT,
+                               student_id    INT           NOT NULL,
+                               academic_year VARCHAR(9)    NOT NULL,
+                               semester      VARCHAR(10)   NOT NULL,
+                               total_credits DECIMAL(5,2)  NOT NULL,
+                               sgpa          DECIMAL(4,2)  NOT NULL,
+                               cgpa          DECIMAL(4,2)  NOT NULL,
+                               CONSTRAINT pk_semester_result PRIMARY KEY (result_id),
+                               CONSTRAINT uq_semester_result UNIQUE (student_id, academic_year, semester),
+                               CONSTRAINT ck_result_total_credits CHECK (total_credits >= 0),
+                               CONSTRAINT ck_result_sgpa CHECK (sgpa BETWEEN 0 AND 4),
+                               CONSTRAINT ck_result_cgpa CHECK (cgpa BETWEEN 0 AND 4),
+                               CONSTRAINT fk_result_student FOREIGN KEY (student_id)
+                                   REFERENCES undergraduate (student_id)
+                                   ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------------
+-- 14. EVALUATION
 -- ---------------------------------------------------------------------------
 CREATE TABLE evaluation (
                             evaluation_id    INT           NOT NULL AUTO_INCREMENT,
@@ -260,7 +282,7 @@ CREATE TABLE evaluation (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------------
--- 14. MARK
+-- 15. MARK
 -- ---------------------------------------------------------------------------
 CREATE TABLE mark (
                       mark_id        INT           NOT NULL AUTO_INCREMENT,
@@ -280,7 +302,7 @@ CREATE TABLE mark (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------------
--- 15. MEDICAL
+-- 16. MEDICAL
 -- ---------------------------------------------------------------------------
 CREATE TABLE medical (
                          medical_id      INT          NOT NULL AUTO_INCREMENT,
@@ -302,7 +324,7 @@ CREATE TABLE medical (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------------
--- 16. ATTENDANCE_RECORD
+-- 17. ATTENDANCE_RECORD
 -- ---------------------------------------------------------------------------
 CREATE TABLE attendance_record (
                                    attendance_id  INT          NOT NULL AUTO_INCREMENT,
@@ -334,7 +356,7 @@ CREATE TABLE attendance_record (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------------
--- 17. NOTICE
+-- 18. NOTICE
 -- ---------------------------------------------------------------------------
 CREATE TABLE notice (
                         notice_id    INT           NOT NULL AUTO_INCREMENT,
@@ -349,7 +371,7 @@ CREATE TABLE notice (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------------
--- 18. COURSE_MODULE
+-- 19. COURSE_MODULE
 -- ---------------------------------------------------------------------------
 CREATE TABLE course_module (
                                course_code  VARCHAR(10)  NOT NULL,

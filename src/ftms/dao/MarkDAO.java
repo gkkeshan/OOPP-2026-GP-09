@@ -1,13 +1,13 @@
 package ftms.dao;
 
-import model.Mark;
 import ftms.config.DBConnection;
+import ftms.model.Mark;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarkDAO implements IDatabaseOperations {
+public class MarkDAO implements IDatabaseOperations<Mark> {
 
     private Mark map(ResultSet rs) throws SQLException {
         Mark m = new Mark(rs.getString("mark_id"), rs.getString("evaluation_id"),
@@ -18,8 +18,8 @@ public class MarkDAO implements IDatabaseOperations {
 
     /** mark_id is AUTO_INCREMENT, so we don't insert it; MySQL generates it and we copy it back. */
     @Override
-    public boolean insert(Object obj) throws SQLException {
-        Mark m = (Mark) obj;
+    public boolean insert(Mark m) throws SQLException {
+        m.setGrade(m.calculateGrade());
         String sql = "INSERT INTO mark (evaluation_id, student_id, marks, grade) VALUES (?,?,?,?)";
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -38,8 +38,8 @@ public class MarkDAO implements IDatabaseOperations {
     }
 
     @Override
-    public boolean update(Object obj) throws SQLException {
-        Mark m = (Mark) obj;
+    public boolean update(Mark m) throws SQLException {
+        m.setGrade(m.calculateGrade());
         String sql = "UPDATE mark SET marks=?, grade=? WHERE mark_id=?";
         try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setDouble(1, m.getMarks());

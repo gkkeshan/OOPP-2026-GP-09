@@ -28,7 +28,7 @@ public class Mark {
     public double getMarks() { return marks; }
 
     public void setMarks(double marks) {
-        if (marks < 0 || marks > 100) {
+        if (!Double.isFinite(marks) || marks < 0 || marks > 100) {
             throw new InvalidMarkException("Mark must be between 0 and 100");
         }
         this.marks = marks;

@@ -1,4 +1,4 @@
-package model;
+package ftms.model;
 
 /** One assessment of a course (quiz, assignment, mid, final). Table: evaluation. */
 public class Evaluation {

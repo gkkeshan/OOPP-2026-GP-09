@@ -1,7 +1,7 @@
 package ftms.dao;
 
-import com.fot.model.SemesterResult;
-import com.fot.util.DBConnection;
+import ftms.config.DBConnection;
+import ftms.model.SemesterResult;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,22 +11,28 @@ public class ResultDAO implements IDatabaseOperations<SemesterResult> {
 
     private SemesterResult map(ResultSet rs) throws SQLException {
         return new SemesterResult(rs.getString("result_id"), rs.getString("student_id"),
-                rs.getString("academic_year"), rs.getInt("semester"),
+                rs.getString("academic_year"), rs.getString("semester"),
                 rs.getDouble("total_credits"), rs.getDouble("sgpa"), rs.getDouble("cgpa"));
     }
 
     @Override
     public boolean insert(SemesterResult r) throws SQLException {
-        String sql = "INSERT INTO semester_result (result_id, student_id, academic_year, semester, total_credits, sgpa, cgpa) VALUES (?,?,?,?,?,?,?)";
-        try (Connection c = DBConnection.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, r.getResultId());
-            ps.setString(2, r.getStudentId());
-            ps.setString(3, r.getAcademicYear());
-            ps.setInt(4, r.getSemester());
-            ps.setDouble(5, r.getTotalCredits());
-            ps.setDouble(6, r.getSgpa());
-            ps.setDouble(7, r.getCgpa());
-            return ps.executeUpdate() > 0;
+        String sql = "INSERT INTO semester_result (student_id, academic_year, semester, total_credits, sgpa, cgpa) VALUES (?,?,?,?,?,?)";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, Integer.parseInt(r.getStudentId()));
+            ps.setString(2, r.getAcademicYear());
+            ps.setString(3, r.getSemester());
+            ps.setDouble(4, r.getTotalCredits());
+            ps.setDouble(5, r.getSgpa());
+            ps.setDouble(6, r.getCgpa());
+            boolean inserted = ps.executeUpdate() > 0;
+            if (inserted) {
+                try (ResultSet keys = ps.getGeneratedKeys()) {
+                    if (keys.next()) r.setResultId(String.valueOf(keys.getInt(1)));
+                }
+            }
+            return inserted;
         }
     }
 
@@ -37,7 +43,7 @@ public class ResultDAO implements IDatabaseOperations<SemesterResult> {
             ps.setDouble(1, r.getTotalCredits());
             ps.setDouble(2, r.getSgpa());
             ps.setDouble(3, r.getCgpa());
-            ps.setString(4, r.getResultId());
+            ps.setInt(4, Integer.parseInt(r.getResultId()));
             return ps.executeUpdate() > 0;
         }
     }
@@ -46,7 +52,7 @@ public class ResultDAO implements IDatabaseOperations<SemesterResult> {
     public boolean delete(String id) throws SQLException {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement("DELETE FROM semester_result WHERE result_id=?")) {
-            ps.setString(1, id);
+            ps.setInt(1, Integer.parseInt(id));
             return ps.executeUpdate() > 0;
         }
     }
@@ -55,7 +61,7 @@ public class ResultDAO implements IDatabaseOperations<SemesterResult> {
     public SemesterResult findById(String id) throws SQLException {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement("SELECT * FROM semester_result WHERE result_id=?")) {
-            ps.setString(1, id);
+            ps.setInt(1, Integer.parseInt(id));
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? map(rs) : null;
             }
@@ -78,7 +84,7 @@ public class ResultDAO implements IDatabaseOperations<SemesterResult> {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT * FROM semester_result WHERE student_id=? ORDER BY academic_year, semester")) {
-            ps.setString(1, studentId);
+            ps.setInt(1, Integer.parseInt(studentId));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) list.add(map(rs));
             }
@@ -86,13 +92,13 @@ public class ResultDAO implements IDatabaseOperations<SemesterResult> {
         return list;
     }
 
-    public SemesterResult findByStudentAndSemester(String studentId, String academicYear, int semester) throws SQLException {
+    public SemesterResult findByStudentAndSemester(String studentId, String academicYear, String semester) throws SQLException {
         try (Connection c = DBConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(
                      "SELECT * FROM semester_result WHERE student_id=? AND academic_year=? AND semester=?")) {
-            ps.setString(1, studentId);
+            ps.setInt(1, Integer.parseInt(studentId));
             ps.setString(2, academicYear);
-            ps.setInt(3, semester);
+            ps.setString(3, semester);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? map(rs) : null;
             }
