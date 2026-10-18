@@ -1,6 +1,6 @@
 package ftms.model;
 
-import exception.EligibilityException;
+import ftms.exception.EligibilityException;
 
 public class EligibilityStatus {
     private String studentId;

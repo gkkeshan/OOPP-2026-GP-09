@@ -1,4 +1,4 @@
-package exception;
+package ftms.exception;
 
 /** Thrown when a mark is outside 0-100. Unchecked, so setters stay simple. */
 public class InvalidMarkException extends RuntimeException {
