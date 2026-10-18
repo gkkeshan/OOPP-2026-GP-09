@@ -1,6 +1,6 @@
 package ftms.model;
 
-import exception.InvalidMarkException;
+import ftms.exception.InvalidMarkException;
 
 /** A student's mark (out of 100) for one Evaluation. Table: mark. */
 public class Mark {
