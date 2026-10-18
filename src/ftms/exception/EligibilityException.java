@@ -1,4 +1,4 @@
-package exception;
+package ftms.exception;
 
 public class EligibilityException extends RuntimeException {
     public EligibilityException(String message) {
