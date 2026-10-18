@@ -1,4 +1,4 @@
-package com.fot.dao;
+package ftms.dao;
 
 import java.sql.SQLException;
 import java.util.List;

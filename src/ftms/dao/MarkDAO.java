@@ -1,7 +1,7 @@
-package dao;
+package ftms.dao;
 
 import model.Mark;
-import util.DBConnection;
+import ftms.config.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;

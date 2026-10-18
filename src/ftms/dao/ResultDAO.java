@@ -1,4 +1,4 @@
-package com.fot.dao;
+package ftms.dao;
 
 import com.fot.model.SemesterResult;
 import com.fot.util.DBConnection;

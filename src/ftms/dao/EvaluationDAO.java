@@ -1,4 +1,4 @@
-package dao;
+package ftms.dao;
 
 import model.Evaluation;
 import util.DBConnection;

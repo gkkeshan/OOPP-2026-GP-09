@@ -1,4 +1,4 @@
-package model;
+package ftms.model;
 
 import exception.InvalidMarkException;
 
