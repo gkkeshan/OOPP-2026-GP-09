@@ -249,7 +249,9 @@ CREATE TABLE evaluation (
                             evaluation_name  VARCHAR(60)   NOT NULL,
                             max_marks        DECIMAL(5,2)  NOT NULL,
                             percentage       DECIMAL(5,2)  NOT NULL,
+                            is_ca            BOOLEAN       NOT NULL DEFAULT TRUE,
                             CONSTRAINT pk_evaluation PRIMARY KEY (evaluation_id),
+                            CONSTRAINT uq_eval_name UNIQUE (course_code, evaluation_name),
                             CONSTRAINT ck_eval_percentage CHECK (percentage > 0 AND percentage <= 100),
                             CONSTRAINT ck_eval_maxmarks CHECK (max_marks > 0),
                             CONSTRAINT fk_eval_course FOREIGN KEY (course_code)

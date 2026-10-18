@@ -1,14 +1,14 @@
-package com.fot.model;
+package model;
 
-import com.fot.exception.InvalidMarkException;
+import exception.InvalidMarkException;
 
-/** A student's mark for one ExamComponent. All marks are out of 100. Maps to table `mark`. */
+/** A student's mark (out of 100) for one Evaluation. Table: mark. */
 public class Mark {
     private String markId;
-    private String evaluationId;
-    private String studentId;
+    private String evaluationId;   // links to Evaluation by ID only
+    private String studentId;      // links to Undergraduate by ID only
     private double marks;
-    private String grade;   // filled in only for the final exam / final subject mark
+    private String grade;
 
     public Mark() {}
 
@@ -16,7 +16,7 @@ public class Mark {
         this.markId = markId;
         this.evaluationId = evaluationId;
         this.studentId = studentId;
-        setMarks(marks);    // goes through validation
+        setMarks(marks);           // validated
     }
 
     public String getMarkId() { return markId; }
@@ -36,4 +36,19 @@ public class Mark {
 
     public String getGrade() { return grade; }
     public void setGrade(String grade) { this.grade = grade; }
+
+    /** Letter grade from the UGC scale (SRS 7.2). Lower bounds, so 79.5 -> A. */
+    public String calculateGrade() {
+        if (marks >= 80) return "A+";
+        if (marks >= 75) return "A";
+        if (marks >= 70) return "A-";
+        if (marks >= 65) return "B+";
+        if (marks >= 60) return "B";
+        if (marks >= 55) return "B-";
+        if (marks >= 50) return "C+";
+        if (marks >= 45) return "C";
+        if (marks >= 40) return "C-";
+        if (marks >= 30) return "D";
+        return "E";
+    }
 }

@@ -1,17 +1,18 @@
-package ftms.model;
+package model;
 
+/** One assessment of a course (quiz, assignment, mid, final). Table: evaluation. */
 public class Evaluation {
     private String evaluationId;
     private String courseCode;
     private String evaluationName;
     private int maxMarks;
-    private double weight;      // contribution to the course total, in percent
-    private boolean isCA;       // true = counts toward CA, false = final exam
+    private double weight;     // % this assessment contributes
+    private boolean isCA;      // true = counts toward CA, false = final exam
 
-    public ExamComponent() {}
+    public Evaluation() {}
 
-    public ExamComponent(String evaluationId, String courseCode, String evaluationName,
-                         int maxMarks, double weight, boolean isCA) {
+    public Evaluation(String evaluationId, String courseCode, String evaluationName,
+                      int maxMarks, double weight, boolean isCA) {
         this.evaluationId = evaluationId;
         this.courseCode = courseCode;
         this.evaluationName = evaluationName;
@@ -31,10 +32,5 @@ public class Evaluation {
     public double getWeight() { return weight; }
     public void setWeight(double weight) { this.weight = weight; }
     public boolean isCA() { return isCA; }
-    public void setCA(boolean CA) { isCA = CA; }
-
-    @Override
-    public String toString() {
-        return evaluationName + " (" + courseCode + ", " + weight + "%)";
-    }
+    public void setCA(boolean isCA) { this.isCA = isCA; }
 }
