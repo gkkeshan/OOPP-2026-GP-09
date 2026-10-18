@@ -677,7 +677,7 @@ public class ConnectionUrlTest {
         cup = ConnectionUrlParser.parseConnectionString(url);
         // schema & db
         assertEquals("jdbc:mysql:", cup.getScheme());
-        assertEquals("db", cup.getPath());
+        assertEquals("ftms/db", cup.getPath());
         // single host: user, password, host name, port and host properties
         assertEquals(1, cup.getHosts().size());
         assertEquals("johndoe", cup.getHosts().get(0).getUser());
@@ -700,7 +700,7 @@ public class ConnectionUrlTest {
         cup = ConnectionUrlParser.parseConnectionString(url);
         // schema & db
         assertEquals("jdbc:mysql:", cup.getScheme());
-        assertEquals("db", cup.getPath());
+        assertEquals("ftms/db", cup.getPath());
         // single host: user, password, host name, port and host properties
         assertEquals(1, cup.getHosts().size());
         assertEquals("johndoe", cup.getHosts().get(0).getUser());
@@ -727,7 +727,7 @@ public class ConnectionUrlTest {
         cup = ConnectionUrlParser.parseConnectionString(url);
         // schema & db
         assertEquals("jdbc:mysql:", cup.getScheme());
-        assertEquals("db", cup.getPath());
+        assertEquals("ftms/db", cup.getPath());
         // single host: user, password, host name, port and host properties
         assertEquals(1, cup.getHosts().size());
         assertEquals("johndoe", cup.getHosts().get(0).getUser());
@@ -755,7 +755,7 @@ public class ConnectionUrlTest {
         cup = ConnectionUrlParser.parseConnectionString(url);
         // schema & db
         assertEquals("jdbc:mysql:", cup.getScheme());
-        assertEquals("db", cup.getPath());
+        assertEquals("ftms/db", cup.getPath());
         assertEquals(3, cup.getHosts().size());
         // first host: user, password, host name, port and host properties
         assertEquals("johndoe", cup.getHosts().get(0).getUser());
@@ -800,7 +800,7 @@ public class ConnectionUrlTest {
         cup = ConnectionUrlParser.parseConnectionString(url);
         // schema & db
         assertEquals("jdbc:mysql:", cup.getScheme());
-        assertEquals("db", cup.getPath());
+        assertEquals("ftms/db", cup.getPath());
         assertEquals(3, cup.getHosts().size());
         // first host: user, password, host name, port and host properties
         assertEquals("johndoe", cup.getHosts().get(0).getUser());
@@ -1024,7 +1024,7 @@ public class ConnectionUrlTest {
                 assertEquals("secret", hi.getPassword(), testCase);
                 assertEquals(hostName + hostIdx, hi.getHost(), testCase);
                 assertEquals(1111 * hostIdx, hi.getPort(), testCase);
-                assertEquals("db", hi.getDatabase(), testCase);
+                assertEquals("ftms/db", hi.getDatabase(), testCase);
                 assertTrue(hi.getHostProperties().containsKey(PropertyKey.PRIORITY.getKeyName()), testCase);
                 assertEquals(Integer.toString(101 - hostIdx), hi.getHostProperties().get(PropertyKey.PRIORITY.getKeyName()), testCase);
                 hostIdx++;
@@ -1042,7 +1042,7 @@ public class ConnectionUrlTest {
                 assertEquals("secret", hi.getPassword(), testCase);
                 hosts = hosts.replace(hi.getHost(), "");
                 ports = ports.replace(Integer.toString(hi.getPort()), "");
-                assertEquals("db", hi.getDatabase(), testCase);
+                assertEquals("ftms/db", hi.getDatabase(), testCase);
                 assertFalse(hi.getHostProperties().containsKey(PropertyKey.PRIORITY.getKeyName()), testCase);
                 hostIdx++;
             }
@@ -1059,7 +1059,7 @@ public class ConnectionUrlTest {
                 assertEquals("secret", hi.getPassword(), testCase);
                 assertEquals(hostName + hostIdx, hi.getHost(), testCase);
                 assertEquals(1111 * hostIdx, hi.getPort(), testCase);
-                assertEquals("db", hi.getDatabase(), testCase);
+                assertEquals("ftms/db", hi.getDatabase(), testCase);
                 assertTrue(hi.getHostProperties().containsKey(PropertyKey.PRIORITY.getKeyName()), testCase);
                 assertEquals(Integer.toString(101 - hostIdx), hi.getHostProperties().get(PropertyKey.PRIORITY.getKeyName()), testCase);
                 hostIdx++;
@@ -1077,7 +1077,7 @@ public class ConnectionUrlTest {
                 assertEquals("secret", hi.getPassword(), testCase);
                 hosts = hosts.replace(hi.getHost(), "");
                 ports = ports.replace(Integer.toString(hi.getPort()), "");
-                assertEquals("db", hi.getDatabase(), testCase);
+                assertEquals("ftms/db", hi.getDatabase(), testCase);
                 assertFalse(hi.getHostProperties().containsKey(PropertyKey.PRIORITY.getKeyName()), testCase);
                 hostIdx++;
             }
