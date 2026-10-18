@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/src/ftms/dao/ExamComponentDAO.java" value="16d20bf3-95fe-40af-9478-68e61f8d3a4a" />
+    <file url="file://$PROJECT_DIR$/src/ftms/dao/MarkDAO.java" value="16d20bf3-95fe-40af-9478-68e61f8d3a4a" />
+    <file url="file://$PROJECT_DIR$/src/ftms/dao/ResultDAO.java" value="16d20bf3-95fe-40af-9478-68e61f8d3a4a" />
+  </component>
+</project>
