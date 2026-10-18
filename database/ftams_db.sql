@@ -206,12 +206,14 @@ CREATE TABLE enrollment (
 
 
 CREATE TABLE evaluation (
-                            evaluation_id   INT           NOT NULL AUTO_INCREMENT,
-                            course_code     VARCHAR(10)   NOT NULL,
-                            evaluation_name VARCHAR(60)   NOT NULL,
-                            max_marks       DECIMAL(5,2)  NOT NULL,
-                            percentage      DECIMAL(5,2)  NOT NULL,
+                            evaluation_id    INT           NOT NULL AUTO_INCREMENT,
+                            course_code      VARCHAR(10)   NOT NULL,
+                            evaluation_name  VARCHAR(60)   NOT NULL,
+                            max_marks        DECIMAL(5,2)  NOT NULL,
+                            percentage       DECIMAL(5,2)  NOT NULL,
+                            is_ca            BOOLEAN       NOT NULL DEFAULT TRUE,
                             CONSTRAINT pk_evaluation PRIMARY KEY (evaluation_id),
+                            CONSTRAINT uq_eval_name UNIQUE (course_code, evaluation_name),
                             CONSTRAINT ck_eval_percentage CHECK (percentage > 0 AND percentage <= 100),
                             CONSTRAINT ck_eval_maxmarks CHECK (max_marks > 0),
                             CONSTRAINT fk_eval_course FOREIGN KEY (course_code)
@@ -219,6 +221,23 @@ CREATE TABLE evaluation (
                                 ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
+CREATE TABLE semester_result (
+                                 result_id     INT           NOT NULL AUTO_INCREMENT,
+                                 student_id    INT           NOT NULL,
+                                 academic_year VARCHAR(9)    NOT NULL,
+                                 semester      VARCHAR(10)   NOT NULL,
+                                 total_credits DECIMAL(5,2)  NOT NULL,
+                                 sgpa          DECIMAL(4,2)  NOT NULL,
+                                 cgpa          DECIMAL(4,2)  NOT NULL,
+                                 CONSTRAINT pk_semester_result PRIMARY KEY (result_id),
+                                 CONSTRAINT uq_semester_result UNIQUE (student_id, academic_year, semester),
+                                 CONSTRAINT ck_result_total_credits CHECK (total_credits >= 0),
+                                 CONSTRAINT ck_result_sgpa CHECK (sgpa BETWEEN 0 AND 4),
+                                 CONSTRAINT ck_result_cgpa CHECK (cgpa BETWEEN 0 AND 4),
+                                 CONSTRAINT fk_result_student FOREIGN KEY (student_id)
+                                     REFERENCES undergraduate (student_id)
+                                     ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
 
 CREATE TABLE mark (
                       mark_id         INT           NOT NULL AUTO_INCREMENT,
