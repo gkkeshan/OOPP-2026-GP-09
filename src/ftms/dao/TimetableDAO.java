@@ -110,6 +110,25 @@ public class TimetableDAO {
         }
     }
 
+    /** Updates course, venue, times, session type and date of one entry. False = id not found. */
+    public boolean update(Timetable t) {
+        String sql = "UPDATE timetable SET course_code = ?, venue_id = ?, start_time = ?, "
+                + "end_time = ?, session_type = ?, add_date = ? WHERE timetable_id = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, t.getCourseCode());
+            ps.setInt(2, t.getVenueId());
+            ps.setTime(3, Time.valueOf(t.getStartTime()));
+            ps.setTime(4, Time.valueOf(t.getEndTime()));
+            ps.setString(5, t.getSessionType().getDbValue());
+            ps.setDate(6, Date.valueOf(t.getSessionDate()));
+            ps.setInt(7, t.getTimetableId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not update timetable entry: " + e.getMessage(), e);
+        }
+    }
+
     public boolean deleteById(int timetableId) {
         String sql = "DELETE FROM timetable WHERE timetable_id = ?";
         try (Connection con = DBConnection.getConnection();
