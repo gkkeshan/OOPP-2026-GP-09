@@ -26,5 +26,8 @@ bin/
 ### VS Code ###
 .vscode/
 
+/src/ftms/config/DBConnection.java
+
+
 ### Mac OS ###
 .DS_Store
