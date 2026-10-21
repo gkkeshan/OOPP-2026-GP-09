@@ -98,5 +98,12 @@ public class UserDAO {
     }
 
 
+    public User getUserById(int userId) {
 
+        return null;
+    }
+
+    public boolean updateContactNo(int userId, String contactNo) {
+        return false;
+    }
 }

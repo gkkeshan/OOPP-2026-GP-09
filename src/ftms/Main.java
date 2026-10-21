@@ -1,6 +1,8 @@
 package ftms;
 
 import ftms.config.DBConnection;
+import ftms.view.LoginFrame;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -21,5 +23,10 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             System.out.println("UI Frame initialized successfully.");
         });
+
+        SwingUtilities.invokeLater(() -> {
+            new LoginFrame().setVisible(true);
+        });
+
     }
 }
