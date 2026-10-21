@@ -75,4 +75,15 @@ public class ResultsSheetPanel extends JPanel {
         JOptionPane.showMessageDialog(this, message, "Results Error",
                 JOptionPane.ERROR_MESSAGE);
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Student Results Sheet");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setContentPane(new ResultsSheetPanel());
+            frame.setSize(1000, 650);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
 }

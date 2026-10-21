@@ -99,4 +99,15 @@ public class GpaDashboardPanel extends JPanel {
         JOptionPane.showMessageDialog(this, message, "GPA Error",
                 JOptionPane.ERROR_MESSAGE);
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("GPA Dashboard");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setContentPane(new GpaDashboardPanel());
+            frame.setSize(1000, 650);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
 }
