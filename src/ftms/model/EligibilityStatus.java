@@ -10,7 +10,8 @@ public class EligibilityStatus {
     private boolean attendanceEligible;
     private boolean caEligible;
 
-    public EligibilityStatus() {}
+    public EligibilityStatus() {
+    }
 
     public EligibilityStatus(String studentId, String courseCode, double attendancePercentage,
                              double caPercentage) {
@@ -22,11 +23,30 @@ public class EligibilityStatus {
         this.caEligible = caPercentage >= 40;
     }
 
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
-    public String getCourseCode() { return courseCode; }
-    public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
-    public double getAttendancePercentage() { return attendancePercentage; }
+    public EligibilityStatus(String studentId, String courseCode, double caPercentage) {
+        this(studentId, courseCode, 0, caPercentage);
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public double getAttendancePercentage() {
+        return attendancePercentage;
+    }
+
     public void setAttendancePercentage(double attendancePercentage) {
         if (!Double.isFinite(attendancePercentage)
                 || attendancePercentage < 0 || attendancePercentage > 100) {
@@ -35,7 +55,11 @@ public class EligibilityStatus {
         this.attendancePercentage = attendancePercentage;
         this.attendanceEligible = attendancePercentage >= 80;
     }
-    public double getCaPercentage() { return caPercentage; }
+
+    public double getCaPercentage() {
+        return caPercentage;
+    }
+
     public void setCaPercentage(double caPercentage) {
         if (!Double.isFinite(caPercentage) || caPercentage < 0 || caPercentage > 100) {
             throw new EligibilityException("CA percentage must be between 0 and 100");
@@ -43,12 +67,21 @@ public class EligibilityStatus {
         this.caPercentage = caPercentage;
         this.caEligible = caPercentage >= 40;
     }
-    public boolean isAttendanceEligible() { return attendanceEligible; }
-    public boolean isCaEligible() { return caEligible; }
-    public boolean isEligible() { return attendanceEligible && caEligible; }
+
+    public boolean isAttendanceEligible() {
+        return attendanceEligible;
+    }
+
+    public boolean isCaEligible() {
+        return caEligible;
+    }
+
+    public boolean isEligible() {
+        return caEligible;
+    }
+
     public String getFailureReason() {
         if (isEligible()) return "";
-        if (!attendanceEligible && !caEligible) return "Attendance is below 80% and CA is below 40%";
-        return attendanceEligible ? "CA is below 40%" : "Attendance is below 80%";
+        return "CA is below 40%";
     }
 }
