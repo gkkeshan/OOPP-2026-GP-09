@@ -82,7 +82,7 @@ public class UserDAO {
             case  "ADMIN":
                 return new Admin(userId, userName, email, password, role, contactNumber);
 
-            case "LECTURE":
+            case "LECTURER":
                 return  new Lecturer(userId, userName, email, password, role, contactNumber);
 
             case "TECHNICAL_OFFICER":
@@ -105,5 +105,18 @@ public class UserDAO {
 
     public boolean updateContactNo(int userId, String contactNo) {
         return false;
+    }
+
+    public int getStudentIdByUserId(int userId) {
+        String sql = "SELECT student_id FROM undergraduate WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

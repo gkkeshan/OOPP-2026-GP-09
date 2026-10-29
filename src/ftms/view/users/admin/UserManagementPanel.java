@@ -1,4 +1,4 @@
-package ftms.view.admin;
+package ftms.view.users.admin;
 import javax.swing.*;
 public class UserManagementPanel extends JPanel {
     public UserManagementPanel() {

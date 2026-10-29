@@ -1,5 +1,4 @@
-package ftms.view.admin;
-import ftms.util.NavigationManager;
+package ftms.view.users.admin;
 
 import javax.swing.*;
 public class AdminDashboardPanel extends JPanel {

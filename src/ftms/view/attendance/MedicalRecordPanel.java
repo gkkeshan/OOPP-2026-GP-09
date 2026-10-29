@@ -5,6 +5,7 @@ package ftms.view.attendance;
 
 import ftms.model.Medical;
 import ftms.service.MedicalService;
+import ftms.util.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,9 +17,11 @@ import java.util.List;
 public class MedicalRecordPanel extends JPanel {
 
     private final MedicalService medicalService = new MedicalService();
+    private final boolean isTO = "TECHNICAL_OFFICER".equalsIgnoreCase(SessionManager.getCurrentUser().getRole().trim());
     private JTable table;
     private MedicalTableModel tableModel;
     private JTextField studentIdField;
+    JTextField toField = new JTextField(15);
 
     public MedicalRecordPanel() {
         setLayout(new BorderLayout());
@@ -48,6 +51,9 @@ public class MedicalRecordPanel extends JPanel {
         bottomPanel.add(approveButton);
         bottomPanel.add(rejectButton);
 
+        addButton.setVisible(isTO);
+        bottomPanel.setVisible(isTO);
+
         add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -66,7 +72,6 @@ public class MedicalRecordPanel extends JPanel {
     private void showAddMedicalForm() {
 
         JTextField studentField = new JTextField(15);
-        JTextField toField = new JTextField(15);
         JTextField dateField =
                 new JTextField(LocalDate.now().toString(), 15);
         JTextField documentField = new JTextField(20);
@@ -94,6 +99,10 @@ public class MedicalRecordPanel extends JPanel {
         form.add(studentField);
 
         form.add(new JLabel("TO ID:"));
+        JTextField toField = new JTextField(
+                String.valueOf(SessionManager.getCurrentUser().getUserID()), 15);
+        toField.setEditable(false);   // locked to the logged-in TO
+        form.add(toField);
         form.add(toField);
 
         form.add(new JLabel("Medical Date (YYYY-MM-DD):"));

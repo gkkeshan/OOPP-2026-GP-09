@@ -5,12 +5,7 @@ public class Lecturer extends User{
     private String designation;
 
     public Lecturer(int userId, String userName, String email, String password, String role, String contactNumber) {
-        super();
-        setRole("LECTURE");
-    }
-    public class Lecture{
-        public Lecture(int userId, String userName, String email, String password, String role, String contactNumber) {
-        }
+        super(userId, userName, email, password, role, contactNumber);
     }
     public Lecturer(int lecturerId, String designation) {
         this.lecturerId = lecturerId;
