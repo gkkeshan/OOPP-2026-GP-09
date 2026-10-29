@@ -4,12 +4,12 @@ A robust, multi-tier desktop application built for managing academic operations,
 
 ---
 
-## 🚀 Project Overview
+##  Project Overview
 FTAMS is developed as a group project (Batch 09, Group 09) for the module **ICT2132 - Object Oriented Programming Practicum (OOPP)**. The system enforces strict architectural separation to ensure clean code, maintainability, and conflict-free team collaboration.
 
 ---
 
-## 🏛️ Architecture & Design
+##  Architecture & Design
 The project follows a strict **Layered Architecture ("Bottom-Up" approach)**:
 1. **Model Layer (`model`)**: Pure data objects (POJOs) mapping database tables.
 2. **DAO Layer (`dao`)**: Data Access Objects handling raw SQL communication via JDBC.
@@ -20,7 +20,7 @@ The project follows a strict **Layered Architecture ("Bottom-Up" approach)**:
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 * **Language**: Java 
 * **Database**: MySQL 8.0
 * **Connectivity**: JDBC (MySQL Connector/J)
@@ -29,7 +29,7 @@ The project follows a strict **Layered Architecture ("Bottom-Up" approach)**:
 
 ---
 
-## ⚙️ Setup and Installation
+##  Setup and Installation
 
 ### 1. Database Setup
 1. Open your MySQL client (MySQL Workbench or Terminal).
