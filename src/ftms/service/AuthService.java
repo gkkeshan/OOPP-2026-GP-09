@@ -11,6 +11,7 @@ public class AuthService {
     private UserDAO userDAO = new UserDAO();
 
     public User login(String email, String password) throws AuthenticationException, DatabaseException {
+
         try {
             User user = userDAO.getUserByEmail(email);
             if (user == null) {

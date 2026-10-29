@@ -4,8 +4,8 @@ public abstract class User {
     private int userID;
     private String userName;
     private String email;
-    private String password;
-    private String role;
+    private static String password;
+    private static String role;
     private String contactNumber;
 
     public User(){ }
@@ -51,7 +51,7 @@ public abstract class User {
         this.email = email;
     }
 
-    public String getPassword() {
+    public static String getPassword() {
         return password;
     }
 
@@ -59,7 +59,7 @@ public abstract class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public static String getRole() {
         return role;
     }
 
