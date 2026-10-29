@@ -1,18 +1,22 @@
 package ftms.service;
 
+import ftms.dao.BatchDAO;
 import ftms.dao.TimetableDAO;
 import ftms.dao.VenueDAO;
 import ftms.exception.TimetableConflictException;
+import ftms.model.Batch;
 import ftms.model.Timetable;
 import ftms.model.Venue;
 
-import java.time.LocalDate;
 import java.util.List;
+
 
 public class TimetableService {
 
     private TimetableDAO timetableDAO = new TimetableDAO();
     private VenueDAO venueDAO = new VenueDAO();
+    private BatchDAO batchDAO = new BatchDAO();
+
 
     public List<Timetable> getAllSessions() {
         return timetableDAO.findAll();
@@ -22,8 +26,12 @@ public class TimetableService {
         return timetableDAO.findByCourse(courseCode);
     }
 
-    public List<Timetable> getSessionsByDate(LocalDate date) {
-        return timetableDAO.findByDate(date);
+    public List<Timetable> getSessionsByBatch(int batchId) {
+        return timetableDAO.findByBatch(batchId);
+    }
+
+    public List<Timetable> getSessionsByDay(String dayOfWeek) {
+        return timetableDAO.findByDay(dayOfWeek);
     }
 
     public Timetable getSession(int timetableId) {
@@ -38,32 +46,42 @@ public class TimetableService {
         return venueDAO.findAll();
     }
 
-    public void addSession(Timetable session) throws TimetableConflictException {
-        validateTimes(session);
-        checkVenueClash(session);
-        timetableDAO.insert(session);
+    public List<Batch> getBatches() {
+        return batchDAO.findAll();
     }
 
-    public void updateSession(Timetable session) throws TimetableConflictException {
-        validateTimes(session);
-        checkVenueClash(session);
-        timetableDAO.update(session);
+
+    public void addSession(Timetable timetable) throws TimetableConflictException {
+        validateTimes(timetable);
+        checkVenueClash(timetable);
+        timetableDAO.insert(timetable);
+    }
+
+    public void updateSession(Timetable timetable) throws TimetableConflictException {
+        validateTimes(timetable);
+        checkVenueClash(timetable);
+        timetableDAO.update(timetable);
     }
 
     public void deleteSession(int timetableId) {
         timetableDAO.deleteById(timetableId);
     }
 
-    private void checkVenueClash(Timetable session) throws TimetableConflictException {
-        if (timetableDAO.hasVenueClash(session)) {
-            throw new TimetableConflictException("Venue clash: this venue is already booked on "
-                    + session.getSessionDate() + " from " + session.getStartTime() + " to " + session.getEndTime());
+
+    private void validateTimes(Timetable timetable) {
+        if (timetable.getStartTime() == null || timetable.getEndTime() == null) {
+            throw new IllegalArgumentException("Start and end time are required");
+        }
+        if (!timetable.getEndTime().isAfter(timetable.getStartTime())) {
+            throw new IllegalArgumentException("End time must be after start time");
         }
     }
 
-    private void validateTimes(Timetable session) {
-        if (!session.getStartTime().isBefore(session.getEndTime())) {
-            throw new IllegalArgumentException("Start time must be before end time");
+
+    private void checkVenueClash(Timetable timetable) throws TimetableConflictException {
+        if (timetableDAO.hasVenueClash(timetable)) {
+            throw new TimetableConflictException(
+                    "Venue is already booked for an overlapping session on " + timetable.getDayOfWeek());
         }
     }
 }

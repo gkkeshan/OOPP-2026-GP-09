@@ -3,18 +3,20 @@
 --   University of Ruhuna - Faculty of Technology
 -- ============================================================================
 
+
 CREATE DATABASE IF NOT EXISTS ftams_db
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 USE ftams_db;
 
--- DROP TABLES IN CORRECT REVERSE ORDER TO AVOID FOREIGN KEY CONFLICTS
+
 DROP TABLE IF EXISTS course_module;
 DROP TABLE IF EXISTS notice;
 DROP TABLE IF EXISTS attendance_record;
 DROP TABLE IF EXISTS medical;
 DROP TABLE IF EXISTS mark;
 DROP TABLE IF EXISTS evaluation;
+DROP TABLE IF EXISTS semester_result;
 DROP TABLE IF EXISTS enrollment;
 DROP TABLE IF EXISTS course_material;
 DROP TABLE IF EXISTS timetable;
@@ -88,6 +90,7 @@ CREATE TABLE technical_officer (
 ) ENGINE = InnoDB;
 
 
+-- [M2] batch created BEFORE undergraduate (undergraduate.batch_id references it)
 CREATE TABLE batch (
                        batch_id        INT         NOT NULL AUTO_INCREMENT,
                        batch_name      VARCHAR(30) NOT NULL,
@@ -150,23 +153,30 @@ CREATE TABLE venue (
 
 
 CREATE TABLE timetable (
-                           timetable_id  INT          NOT NULL AUTO_INCREMENT,
-                           course_code   VARCHAR(10)  NOT NULL,
-                           venue_id      INT          NOT NULL,
-                           start_time    TIME         NOT NULL,
-                           end_time      TIME         NOT NULL,
-                           session_type  VARCHAR(10)  NOT NULL,
-                           add_date      DATE         NOT NULL,
+                           timetable_id  INT          NOT NULL AUTO_INCREMENT,  -- ER: TimeTableID
+                           course_code   VARCHAR(10)  NOT NULL,                 -- ER: SCHEDULED
+                           batch_id      INT          NOT NULL,                 -- timetable shown per batch
+                           venue_id      INT          NOT NULL,                 -- ER: HELD_IN
+                           start_time    TIME         NOT NULL,                 -- ER: Start_Time
+                           end_time      TIME         NOT NULL,                 -- ER: End_Time
+                           session_type  VARCHAR(10)  NOT NULL,                 -- ER: Session_Type ('Theory'/'Practical')
+                           day_of_week   VARCHAR(10)  NOT NULL,                 -- weekly day ('MONDAY'..'SUNDAY')
                            CONSTRAINT pk_timetable PRIMARY KEY (timetable_id),
                            CONSTRAINT ck_tt_time CHECK (end_time > start_time),
                            CONSTRAINT ck_tt_type CHECK (session_type IN ('Theory', 'Practical')),
+                           CONSTRAINT ck_tt_day CHECK (day_of_week IN
+                                                       ('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY')),
                            CONSTRAINT fk_tt_course FOREIGN KEY (course_code)
                                REFERENCES course (course_code)
+                               ON DELETE CASCADE ON UPDATE CASCADE,
+                           CONSTRAINT fk_tt_batch FOREIGN KEY (batch_id)
+                               REFERENCES batch (batch_id)
                                ON DELETE CASCADE ON UPDATE CASCADE,
                            CONSTRAINT fk_tt_venue FOREIGN KEY (venue_id)
                                REFERENCES venue (venue_id)
                                ON DELETE RESTRICT ON UPDATE CASCADE,
-                           INDEX ix_tt_course_date (course_code, add_date)
+                           INDEX ix_tt_batch_day (batch_id, day_of_week),
+                           INDEX ix_tt_course_day (course_code, day_of_week)
 ) ENGINE = InnoDB;
 
 
@@ -442,24 +452,26 @@ INSERT INTO course (course_code, course_name, credit_hours, has_theory, has_prac
                                                                                                                        ('BST2132', 'Cell Biology',                          2, TRUE,  TRUE,  3, 3);
 
 
+
 INSERT INTO venue (venue_id, venue_name, building, capacity) VALUES
-                                                                 (1, 'Lecture Hall A', 'Main Building',   120),
-                                                                 (2, 'Lecture Hall B', 'Main Building',   80),
-                                                                 (3, 'ICT Lab 1',      'ICT Building',    40),
-                                                                 (4, 'ICT Lab 2',      'ICT Building',    40),
-                                                                 (5, 'Agri Lab',       'Agri Technology', 30),
+                                                                 (1, 'Lecture Hall A', 'Main Building',    120),
+                                                                 (2, 'Lecture Hall B', 'Main Building',    80),
+                                                                 (3, 'ICT Lab 1',      'ICT Building',     40),
+                                                                 (4, 'ICT Lab 2',      'ICT Building',     40),
+                                                                 (5, 'Agri Lab',       'Agri Technology',  30),
                                                                  (6, 'Bio Lab',        'Science Building', 35);
 
 
-INSERT INTO timetable (timetable_id, course_code, venue_id, start_time, end_time, session_type, add_date) VALUES
-                                                                                                              (1,  'ICT2132', 1, '08:00', '10:00', 'Theory',    '2026-10-05'),
-                                                                                                              (2,  'ICT2132', 3, '10:00', '12:00', 'Practical', '2026-10-06'),
-                                                                                                              (3,  'ICT2132', 1, '08:00', '10:00', 'Theory',    '2026-10-12'),
-                                                                                                              (4,  'ICT2132', 3, '10:00', '12:00', 'Practical', '2026-10-13'),
-                                                                                                              (5,  'ICT2143', 2, '08:00', '10:00', 'Theory',    '2026-10-07'),
-                                                                                                              (6,  'ICT2143', 4, '13:00', '15:00', 'Practical', '2026-10-08'),
-                                                                                                              (7,  'ICT2153', 1, '10:00', '12:00', 'Theory',    '2026-10-09'),
-                                                                                                              (8,  'ICT2162', 2, '13:00', '15:00', 'Theory',    '2026-10-09');
+INSERT INTO timetable (timetable_id, course_code, batch_id, venue_id, start_time, end_time, session_type, day_of_week) VALUES
+                                                                                                                           (1, 'ICT2132', 1, 1, '08:00', '10:00', 'Theory',    'MONDAY'),
+                                                                                                                           (2, 'ICT2132', 1, 3, '10:00', '12:00', 'Practical', 'TUESDAY'),
+                                                                                                                           (3, 'ICT2143', 1, 2, '08:00', '10:00', 'Theory',    'WEDNESDAY'),
+                                                                                                                           (4, 'ICT2143', 1, 4, '13:00', '15:00', 'Practical', 'THURSDAY'),
+                                                                                                                           (5, 'ICT2153', 2, 1, '10:00', '12:00', 'Theory',    'MONDAY'),
+                                                                                                                           (6, 'ICT2153', 2, 5, '13:00', '15:00', 'Practical', 'FRIDAY'),
+                                                                                                                           (7, 'ICT2162', 3, 2, '10:00', '12:00', 'Theory',    'THURSDAY'),
+                                                                                                                           (8, 'AGT2132', 3, 5, '08:00', '10:00', 'Theory',    'FRIDAY');
+
 
 
 INSERT INTO course_material (material_id, course_code, title, file_path, uploaded_date) VALUES
@@ -518,6 +530,15 @@ INSERT INTO evaluation (evaluation_id, course_code, evaluation_name, max_marks, 
                                                                                                 (5, 'ICT2143', 'Mid Exam',        100, 20);
 
 
+
+INSERT INTO semester_result (result_id, student_id, academic_year, semester, total_credits, sgpa, cgpa) VALUES
+                                                                                                            (1, 1, '2023/2024', 'S1', 6.00, 3.85, 3.85),
+                                                                                                            (2, 2, '2023/2024', 'S1', 6.00, 3.60, 3.60),
+                                                                                                            (3, 3, '2023/2024', 'S1', 6.00, 3.20, 3.20),
+                                                                                                            (4, 4, '2023/2024', 'S1', 6.00, 2.75, 2.75),
+                                                                                                            (5, 5, '2023/2024', 'S1', 6.00, 2.30, 2.30);
+
+
 INSERT INTO mark (mark_id, evaluation_id, student_id, marks, grade) VALUES
                                                                         (1, 1, 1, 82, 'A+'),
                                                                         (2, 1, 2, 74, 'A-'),
@@ -547,3 +568,4 @@ INSERT INTO attendance_record (attendance_id, course_code, student_id, session_n
                                                                                                                                       (8,  'ICT2132', 3, 1, '2026-10-06', 'Practical', 'Absent',  1, NULL),
                                                                                                                                       (9,  'ICT2132', 4, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
                                                                                                                                       (10, 'ICT2132', 5, 1, '2026-10-06', 'Practical', 'Absent',  1, 1);
+
