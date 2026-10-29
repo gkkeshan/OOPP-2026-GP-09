@@ -83,6 +83,23 @@ public class CourseDAO {
             throw new RuntimeException("Could not load courses of lecturer: " + e.getMessage(), e);
         }
     }
+    public List<Course> findByStudent(int userId) {
+        String sql = "SELECT c.* FROM enrollment e " +
+                "JOIN undergraduate ug ON ug.student_id = e.student_id " +
+                "JOIN course c ON c.course_code = e.course_code " +
+                "WHERE ug.user_id = ? ORDER BY c.course_code";
+        List<Course> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(mapRow(rs));
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load student courses: " + e.getMessage(), e);
+        }
+    }
 
     public boolean existsById(String courseCode) {
         String sql = "SELECT COUNT(*) FROM course WHERE course_code = ?";

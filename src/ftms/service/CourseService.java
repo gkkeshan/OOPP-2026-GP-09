@@ -86,4 +86,7 @@ public class CourseService {
         }
         departmentDAO.deleteById(departmentId);
     }
+    public List<Course> getCoursesByStudent(int userId) {
+        return courseDAO.findByStudent(userId);
+    }
 }
