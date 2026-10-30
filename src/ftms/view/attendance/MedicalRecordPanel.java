@@ -18,10 +18,10 @@ public class MedicalRecordPanel extends JPanel {
 
     private final MedicalService medicalService = new MedicalService();
     private final boolean isTO = "TECHNICAL_OFFICER".equalsIgnoreCase(SessionManager.getCurrentUser().getRole().trim());
+    private final boolean isUG = "UNDERGRADUATE".equalsIgnoreCase(SessionManager.getCurrentUser().getRole().trim());
     private JTable table;
     private MedicalTableModel tableModel;
     private JTextField studentIdField;
-    JTextField toField = new JTextField(15);
 
     public MedicalRecordPanel() {
         setLayout(new BorderLayout());
@@ -54,6 +54,26 @@ public class MedicalRecordPanel extends JPanel {
         addButton.setVisible(isTO);
         bottomPanel.setVisible(isTO);
 
+        addButton.setVisible(isTO);
+        bottomPanel.setVisible(isTO);
+
+        if (isUG) {                                        // ← NEW BLOCK
+            try {
+                int myStudentId = medicalService.getStudentIdByUserId(
+                        SessionManager.getCurrentUser().getUserID());
+                if (myStudentId == -1) {
+                    JOptionPane.showMessageDialog(this,
+                            "No student profile found for this account.");
+                }
+                studentIdField.setText(String.valueOf(myStudentId));
+                studentIdField.setEditable(false);         // lock search to self
+                viewAllButton.setVisible(false);           // UG cannot load everyone
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Database error: " + ex.getMessage());
+            }
+        }
+
         add(topPanel, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
@@ -66,7 +86,11 @@ public class MedicalRecordPanel extends JPanel {
         rejectButton.addActionListener(
                 e -> updateStatus("Rejected"));
 
-        viewAllMedicals();
+        if (isUG) {
+            viewMyMedicals();
+        } else {
+            viewAllMedicals();
+        }
     }
 
     private void showAddMedicalForm() {
@@ -102,7 +126,6 @@ public class MedicalRecordPanel extends JPanel {
         JTextField toField = new JTextField(
                 String.valueOf(SessionManager.getCurrentUser().getUserID()), 15);
         toField.setEditable(false);   // locked to the logged-in TO
-        form.add(toField);
         form.add(toField);
 
         form.add(new JLabel("Medical Date (YYYY-MM-DD):"));
@@ -249,6 +272,20 @@ public class MedicalRecordPanel extends JPanel {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(
                     this, e.getMessage());
+        }
+    }
+    // Loads only the logged-in undergraduate's own medical records.
+    private void viewMyMedicals() {
+        try {
+            int myStudentId = medicalService.getStudentIdByUserId(
+                    SessionManager.getCurrentUser().getUserID());
+
+            List<Medical> medicals = medicalService.getByStudent(myStudentId);
+            tableModel = new MedicalTableModel(medicals);
+            table.setModel(tableModel);
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
         }
     }
 }

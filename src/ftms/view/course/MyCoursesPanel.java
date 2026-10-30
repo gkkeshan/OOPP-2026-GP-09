@@ -1,6 +1,6 @@
 package ftms.view.course;
 
-import ftms.model.Course;
+import ftms.model.EnrolledCourse;
 import ftms.service.CourseService;
 import ftms.util.SessionManager;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public class MyCoursesPanel extends JPanel {
 
     private final CourseService courseService = new CourseService();
-    private CourseTableModel tableModel;
+    private EnrolledCourseTableModel tableModel;
     private JTable table;
 
     public MyCoursesPanel() {
@@ -22,7 +22,7 @@ public class MyCoursesPanel extends JPanel {
         title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
         add(title, BorderLayout.NORTH);
 
-        tableModel = new CourseTableModel(new java.util.ArrayList<>());
+        tableModel = new EnrolledCourseTableModel(new java.util.ArrayList<>());
         table = new JTable(tableModel);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
@@ -38,18 +38,16 @@ public class MyCoursesPanel extends JPanel {
     private void loadMyCourses() {
         try {
             int userId = SessionManager.getCurrentUser().getUserID();
-            List<Course> myCourses = courseService.getCoursesByStudent(userId);
+            List<EnrolledCourse> myCourses = courseService.getEnrolledCourseDetails(userId);
 
-            tableModel = new CourseTableModel(myCourses);
+            tableModel = new EnrolledCourseTableModel(myCourses);
             table.setModel(tableModel);
 
             if (myCourses.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "No enrolled courses found for your account.");
+                JOptionPane.showMessageDialog(this, "No enrolled courses found for your account.");
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Error loading courses: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading courses: " + ex.getMessage());
         }
     }
 }
