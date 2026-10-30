@@ -6,9 +6,7 @@ import ftms.view.attendance.AttendanceEntryPanel;
 import ftms.view.attendance.AttendanceReportPanel;
 import ftms.view.attendance.AttendanceViewPanel;
 import ftms.view.attendance.MedicalRecordPanel;
-import ftms.view.course.CourseMaterialsPanel;
-import ftms.view.course.TimetableManagementPanel;
-import ftms.view.course.TimetableViewPanel;
+import ftms.view.course.*;
 import ftms.view.marks.EligibilityPanel;
 import ftms.view.marks.GpaDashboardPanel;
 import ftms.view.marks.MarksEntryPanel;
@@ -17,7 +15,6 @@ import ftms.view.users.admin.AdminDashboardPanel;
 import ftms.view.users.admin.DepartmentManagementPanel;
 import ftms.view.users.admin.NoticeManagementPanel;
 import ftms.view.users.admin.UserManagementPanel;
-import ftms.view.course.CourseManagementPanel;
 import ftms.view.users.lecturer.LecturerDashboardPanel;
 import ftms.view.users.technical.TechnicalOfficerDashboardPanel;
 import ftms.view.users.undergraduate.UndergraduateDashboardPanel;
@@ -94,6 +91,7 @@ public class MainFrame extends JFrame {
                 addPage("Attendance",  "ATTENDANCE_VIEW", new AttendanceViewPanel());
                 addPage("Medicals",    "MEDICAL_VIEW",    new MedicalRecordPanel());
                 addPage("Timetable",   "TIMETABLE_VIEW",  new TimetableViewPanel());
+                addPage("Courses", "MY_COURSES", new MyCoursesPanel());
                 break;
             default:
                 throw new IllegalStateException("Unknown role");
