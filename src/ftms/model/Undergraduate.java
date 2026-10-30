@@ -7,9 +7,8 @@ public class Undergraduate extends User {
     private String academic_year;
     private String batch_id;
 
-    public Undergraduate(int userId, String userName, String email, String password, String role, String contactNumber){
-        super();
-        setRole("UNDERGRADUATE");
+    public Undergraduate(int userId, String userName, String email, String password, String role, String contactNumber) {
+        super(userId, userName, email, password, role, contactNumber);
     }
 
     public Undergraduate(int studentId, String registration_no, String batch, String academic_year, String batch_id) {

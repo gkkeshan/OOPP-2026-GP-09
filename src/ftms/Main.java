@@ -1,25 +1,17 @@
 package ftms;
 
-import ftms.config.DBConnection;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import ftms.view.LoginFrame;
+import ftms.view.course.CourseManagementPanel;
+
+import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            // Set standard system look and feel
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Run on the Swing Event Dispatch Thread for thread safety
 
-        // 2. Test Database Connection on startup
-        System.out.println("Starting FOT Management System...");
-        DBConnection.getConnection();
 
-        // 3. Launch UI on Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
-            System.out.println("UI Frame initialized successfully.");
+            new LoginFrame().setVisible(true);
         });
     }
 }
