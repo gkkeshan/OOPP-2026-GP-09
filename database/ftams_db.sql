@@ -526,12 +526,14 @@ INSERT INTO enrollment (enrollment_id, student_id, course_code, academic_year, s
                                                                                                                       (24, 4,  'ICT2143', '2023/2024', 'S1', '2026-09-28', 'Active');
 
 
-INSERT INTO evaluation (evaluation_id, course_code, evaluation_name, max_marks, percentage) VALUES
-                                                                                                (1, 'ICT2132', 'Assignment 1',    100, 10),
-                                                                                                (2, 'ICT2132', 'Mid Exam',        100, 20),
-                                                                                                (3, 'ICT2132', 'Practical Test',  100, 15),
-                                                                                                (4, 'ICT2143', 'Assignment 1',    100, 10),
-                                                                                                (5, 'ICT2143', 'Mid Exam',        100, 20);
+INSERT INTO evaluation (evaluation_id, course_code, evaluation_name, max_marks, percentage, is_ca) VALUES
+                                                                                                       (1, 'ICT2132', 'Assignment 1',   100, 10, TRUE),
+                                                                                                       (2, 'ICT2132', 'Mid Exam',       100, 20, TRUE),
+                                                                                                       (3, 'ICT2132', 'Practical Test', 100, 15, TRUE),
+                                                                                                       (4, 'ICT2143', 'Assignment 1',   100, 10, TRUE),
+                                                                                                       (5, 'ICT2143', 'Mid Exam',       100, 20, TRUE),
+                                                                                                       (6, 'ICT2132', 'Final Exam',     100, 55, FALSE),
+                                                                                                       (7, 'ICT2143', 'Final Exam',     100, 70, FALSE);
 
 
 
@@ -553,7 +555,32 @@ INSERT INTO mark (mark_id, evaluation_id, student_id, marks, grade) VALUES
                                                                         (7, 2, 2, 71, 'A-'),
                                                                         (8, 2, 3, 63, 'B'),
                                                                         (9, 2, 4, 52, 'C+'),
-                                                                        (10, 2, 5, 35, 'D');
+                                                                        (10, 2, 5, 35, 'D'),
+                                                                        (11, 3, 1, 88, 'A+'),
+                                                                        (12, 3, 2, 76, 'A'),
+                                                                        (13, 3, 3, 69, 'B+'),
+                                                                        (14, 3, 4, 58, 'B-'),
+                                                                        (15, 3, 5, 43, 'C-'),
+                                                                        (16, 4, 1, 85, 'A+'),
+                                                                        (17, 4, 2, 72, 'A-'),
+                                                                        (18, 4, 3, 64, 'B'),
+                                                                        (19, 4, 4, 51, 'C+'),
+                                                                        (20, 4, 5, 33, 'E'),
+                                                                        (21, 5, 1, 90, 'A+'),
+                                                                        (22, 5, 2, 68, 'B+'),
+                                                                        (23, 5, 3, 57, 'B-'),
+                                                                        (24, 5, 4, 46, 'C'),
+                                                                        (25, 5, 5, 28, 'E'),
+                                                                        (26, 6, 1, 84, 'A+'),
+                                                                        (27, 6, 2, 77, 'A'),
+                                                                        (28, 6, 3, 61, 'B'),
+                                                                        (29, 6, 4, 39, 'D'),
+                                                                        (30, 6, 5, 30, 'E'),
+                                                                        (31, 7, 1, 86, 'A+'),
+                                                                        (32, 7, 2, 73, 'A-'),
+                                                                        (33, 7, 3, 59, 'B-'),
+                                                                        (34, 7, 4, 42, 'C-'),
+                                                                        (35, 7, 5, 25, 'E');
 
 
 INSERT INTO medical (medical_id, student_id, to_id, medical_date, start_date, end_date, submitted_date, approval_status, document) VALUES
@@ -567,8 +594,28 @@ INSERT INTO attendance_record (attendance_id, course_code, student_id, session_n
                                                                                                                                       (3,  'ICT2132', 3, 1, '2026-10-05', 'Theory',    'Present', 1, NULL),
                                                                                                                                       (4,  'ICT2132', 4, 1, '2026-10-05', 'Theory',    'Absent',  1, NULL),
                                                                                                                                       (5,  'ICT2132', 5, 1, '2026-10-05', 'Theory',    'Absent',  1, NULL),
-                                                                                                                                      (6,  'ICT2132', 1, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
-                                                                                                                                      (7,  'ICT2132', 2, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
-                                                                                                                                      (8,  'ICT2132', 3, 1, '2026-10-06', 'Practical', 'Absent',  1, NULL),
-                                                                                                                                      (9,  'ICT2132', 4, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
-                                                                                                                                      (10, 'ICT2132', 5, 1, '2026-10-06', 'Practical', 'Absent',  1, 1);
+                                                                                                                                      (6,  'ICT2132', 1, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (7,  'ICT2132', 2, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (8,  'ICT2132', 3, 2, '2026-10-12', 'Theory',    'Absent',  1, NULL),
+                                                                                                                                      (9,  'ICT2132', 4, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (10, 'ICT2132', 5, 2, '2026-10-12', 'Theory',    'Absent',  1, 1),
+                                                                                                                                      (11, 'ICT2132', 1, 3, '2026-10-19', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (12, 'ICT2132', 2, 3, '2026-10-19', 'Theory',    'Absent',  1, NULL),
+                                                                                                                                      (13, 'ICT2132', 3, 3, '2026-10-19', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (14, 'ICT2132', 4, 3, '2026-10-19', 'Theory',    'Absent',  1, NULL),
+                                                                                                                                      (15, 'ICT2132', 5, 3, '2026-10-19', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (16, 'ICT2132', 1, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (17, 'ICT2132', 2, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (18, 'ICT2132', 3, 1, '2026-10-06', 'Practical', 'Absent',  1, NULL),
+                                                                                                                                      (19, 'ICT2132', 4, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (20, 'ICT2132', 5, 1, '2026-10-06', 'Practical', 'Absent',  1, NULL),
+                                                                                                                                      (21, 'ICT2132', 1, 2, '2026-10-13', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (22, 'ICT2132', 2, 2, '2026-10-13', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (23, 'ICT2132', 3, 2, '2026-10-13', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (24, 'ICT2132', 4, 2, '2026-10-13', 'Practical', 'Absent',  1, NULL),
+                                                                                                                                      (25, 'ICT2132', 5, 2, '2026-10-13', 'Practical', 'Absent',  1, 1),
+                                                                                                                                      (26, 'ICT2132', 1, 3, '2026-10-20', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (27, 'ICT2132', 2, 3, '2026-10-20', 'Practical', 'Absent',  1, NULL),
+                                                                                                                                      (28, 'ICT2132', 3, 3, '2026-10-20', 'Practical', 'Absent',  1, NULL),
+                                                                                                                                      (29, 'ICT2132', 4, 3, '2026-10-20', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (30, 'ICT2132', 5, 3, '2026-10-20', 'Practical', 'Present', 1, NULL);

@@ -8,7 +8,7 @@ public class DBConnection {
     // Update your database name, username, and password if they differ
     private static final String URL = "jdbc:mysql://localhost:3306/ftams_db";
     private static final String USER = "root";
-    private static final String PASSWORD = "1234"; // Enter your MySQL root password here
+    private static final String PASSWORD = ""; // Enter your MySQL root password here
 
     private static Connection connection = null;
 
