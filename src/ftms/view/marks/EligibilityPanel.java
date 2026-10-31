@@ -2,6 +2,7 @@ package ftms.view.marks;
 
 import ftms.model.EligibilityStatus;
 import ftms.service.EligibilityService;
+import ftms.util.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,10 +53,19 @@ public class EligibilityPanel extends JPanel {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         checkButton.addActionListener(event -> checkEligibility());
+
+        if (SessionManager.isUndergraduate()
+                && SessionManager.getCurrentStudentId() != -1) {
+            studentIdField.setText(SessionManager.getCurrentRegistrationNo());
+            studentIdField.setEditable(false);
+            // no auto-check — the student still types the Course Code
+        }
     }
 
     private void checkEligibility() {
-        String studentId = studentIdField.getText().trim();
+        String studentId = SessionManager.isUndergraduate()
+                ? String.valueOf(SessionManager.getCurrentStudentId())
+                : studentIdField.getText().trim();
         String courseCode = courseCodeField.getText().trim();
         checkButton.setEnabled(false);
         new SwingWorker<EligibilityStatus, Void>() {

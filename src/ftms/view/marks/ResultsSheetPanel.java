@@ -2,6 +2,7 @@ package ftms.view.marks;
 
 import ftms.model.SemesterResult;
 import ftms.service.ResultSheetService;
+import ftms.util.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,10 +39,19 @@ public class ResultsSheetPanel extends JPanel {
         add(new JScrollPane(resultsTable), BorderLayout.CENTER);
 
         loadButton.addActionListener(event -> loadResults());
+
+        if (SessionManager.isUndergraduate()
+                && SessionManager.getCurrentStudentId() != -1) {
+            studentIdField.setText(SessionManager.getCurrentRegistrationNo());
+            studentIdField.setEditable(false);
+            loadResults();
+        }
     }
 
     private void loadResults() {
-        String studentId = studentIdField.getText().trim();
+        String studentId = SessionManager.isUndergraduate()
+                ? String.valueOf(SessionManager.getCurrentStudentId())
+                : studentIdField.getText().trim();
         loadButton.setEnabled(false);
         new SwingWorker<List<SemesterResult>, Void>() {
             @Override

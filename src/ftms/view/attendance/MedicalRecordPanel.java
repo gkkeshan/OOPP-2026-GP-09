@@ -35,7 +35,7 @@ public class MedicalRecordPanel extends JPanel {
         JButton reject = new JButton("Reject");
 
         JPanel top = new JPanel();
-        top.add(new JLabel("Student ID:"));
+        top.add(new JLabel("Registration No:"));
         top.add(studentIdField);
         top.add(search);
         top.add(viewAll);
@@ -56,9 +56,7 @@ public class MedicalRecordPanel extends JPanel {
 
         if (isUG) {
             try {
-                studentIdField.setText(String.valueOf(
-                        service.getStudentIdByUserId(
-                                SessionManager.getCurrentUser().getUserID())));
+                studentIdField.setText(SessionManager.getCurrentRegistrationNo());
                 studentIdField.setEditable(false);
                 viewAll.setVisible(false);
             } catch (Exception e) {
@@ -156,8 +154,9 @@ public class MedicalRecordPanel extends JPanel {
 
     private void searchMedical() {
         try {
-            loadMedicals(service.getByStudent(
-                    Integer.parseInt(studentIdField.getText())));
+            int id = isUG ? SessionManager.getCurrentStudentId()
+                    : Integer.parseInt(studentIdField.getText());
+            loadMedicals(service.getByStudent(id));
         } catch (Exception e) {
             showError(e);
         }
