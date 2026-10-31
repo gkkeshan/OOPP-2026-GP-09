@@ -8,7 +8,7 @@ public class DBConnection {
     // Update your database name, username, and password if they differ
     private static final String URL = "jdbc:mysql://localhost:3306/ftams_db";
     private static final String USER = "root";
-    private static final String PASSWORD = ""; // Enter your MySQL root password here
+    private static final String PASSWORD = "1234"; // Enter your MySQL root password here
 
     private static Connection connection = null;
 
@@ -17,7 +17,12 @@ public class DBConnection {
 
     public static Connection getConnection() {
         try {
-            if (connection == null || connection.isClosed()) {
+            // isValid(2) sends a real ping to MySQL. isClosed() only sees OUR closes,
+            // not a connection the server already dropped (e.g. after laptop sleep).
+            if (connection == null || connection.isClosed() || !connection.isValid(2)) {
+                if (connection != null) {
+                    try { connection.close(); } catch (SQLException ignored) { }
+                }
                 // Load MySQL JDBC Driver
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);

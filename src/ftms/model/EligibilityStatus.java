@@ -77,11 +77,19 @@ public class EligibilityStatus {
     }
 
     public boolean isEligible() {
-        return caEligible;
+        return attendanceEligible && caEligible;
     }
 
     public String getFailureReason() {
         if (isEligible()) return "";
-        return "CA is below 40%";
+        StringBuilder reason = new StringBuilder();
+        if (!attendanceEligible) {
+            reason.append("Attendance is below 80%");
+        }
+        if (!caEligible) {
+            if (reason.length() > 0) reason.append(" and ");
+            reason.append("CA is below 40%");
+        }
+        return reason.toString();
     }
 }

@@ -81,12 +81,14 @@ public class EligibilityPanel extends JPanel {
                     EligibilityStatus status = get();
                     tableModel.addStatus(status);
                     if (status.isEligible()) {
-                        showMessage("Eligible for the final examination (CA "
-                                        + String.format("%.2f", status.getCaPercentage()) + "%).",
+                        showMessage(String.format(
+                                        "Eligible for the final examination (Attendance %.2f%%, CA %.2f%%).",
+                                        status.getAttendancePercentage(), status.getCaPercentage()),
                                 "Eligible", JOptionPane.INFORMATION_MESSAGE);
                     } else {
-                        showMessage(status.getFailureReason() + " (CA "
-                                        + String.format("%.2f", status.getCaPercentage()) + "%).",
+                        showMessage(status.getFailureReason()
+                                        + String.format(" (Attendance %.2f%%, CA %.2f%%).",
+                                        status.getAttendancePercentage(), status.getCaPercentage()),
                                 "Not Eligible", JOptionPane.WARNING_MESSAGE);
                     }
                 } catch (InterruptedException exception) {
