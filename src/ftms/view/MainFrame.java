@@ -11,6 +11,7 @@ import ftms.view.marks.EligibilityPanel;
 import ftms.view.marks.GpaDashboardPanel;
 import ftms.view.marks.MarksEntryPanel;
 import ftms.view.marks.ResultsSheetPanel;
+import ftms.view.profile.ProfilePanel;
 import ftms.view.users.admin.AdminDashboardPanel;
 import ftms.view.users.admin.DepartmentManagementPanel;
 import ftms.view.users.admin.NoticeManagementPanel;
@@ -60,6 +61,7 @@ public class MainFrame extends JFrame {
                 addPage("Eligibility", "ELIGIBILITY", new EligibilityPanel());
                 addPage("Results",     "RESULTS",     new ResultsSheetPanel());
                 addPage("GPA",         "GPA",         new GpaDashboardPanel());
+                addPage("Profile", "PROFILE", new ProfilePanel());
                 break;
             case "LECTURER":
                 first = "LECTURER_DASHBOARD";
@@ -72,6 +74,7 @@ public class MainFrame extends JFrame {
                 addPage("Attendance",  "ATTENDANCE_VIEW",    new AttendanceViewPanel());
                 addPage("Medicals",    "MEDICAL_VIEW",       new MedicalRecordPanel());
                 addPage("Timetable",   "TIMETABLE_VIEW",     new TimetableViewPanel());
+                addPage("Profile", "PROFILE", new ProfilePanel());
                 break;
             case "TECHNICAL_OFFICER":
                 first = "TECHNICAL_OFFICER_DASHBOARD";
@@ -81,6 +84,7 @@ public class MainFrame extends JFrame {
                 addPage("Medicals",         "MEDICAL_VIEW",      new MedicalRecordPanel());
                 addPage("Report",           "ATTENDANCE_REPORT", new AttendanceReportPanel());
                 addPage("Timetable",        "TIMETABLE_VIEW",    new TimetableViewPanel());
+                addPage("Profile", "PROFILE", new ProfilePanel());
                 break;
             case "UNDERGRADUATE":
                 first = "UNDERGRADUATE_DASHBOARD";
@@ -92,6 +96,7 @@ public class MainFrame extends JFrame {
                 addPage("Medicals",    "MEDICAL_VIEW",    new MedicalRecordPanel());
                 addPage("Timetable",   "TIMETABLE_VIEW",  new TimetableViewPanel());
                 addPage("Courses", "MY_COURSES", new MyCoursesPanel());
+                addPage("Profile", "PROFILE", new ProfilePanel());
                 break;
             default:
                 throw new IllegalStateException("Unknown role");

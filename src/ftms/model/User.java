@@ -4,9 +4,10 @@ public abstract class User {
     private int userID;
     private String userName;
     private String email;
-    private static String password;
-    private static String role;
+    private String password;
+    private String role;
     private String contactNumber;
+    private String profilePicture;
 
     public User(){ }
 
@@ -51,7 +52,7 @@ public abstract class User {
         this.email = email;
     }
 
-    public static String getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -59,7 +60,7 @@ public abstract class User {
         this.password = password;
     }
 
-    public static String getRole() {
+    public String getRole() {
         return role;
     }
 
@@ -73,6 +74,14 @@ public abstract class User {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     @Override
