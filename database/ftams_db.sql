@@ -272,6 +272,8 @@ CREATE TABLE medical (
                          student_id      INT          NOT NULL,
                          to_id           INT          NOT NULL,
                          medical_date    DATE         NOT NULL,
+                         start_date      DATE         NULL,
+                         end_date        DATE         NULL,
                          submitted_date  DATE         NOT NULL,
                          approval_status VARCHAR(20)  NOT NULL DEFAULT 'Pending',
                          document        VARCHAR(255) NULL,
@@ -552,9 +554,9 @@ INSERT INTO mark (mark_id, evaluation_id, student_id, marks, grade) VALUES
                                                                         (10, 2, 5, 35, 'D');
 
 
-INSERT INTO medical (medical_id, student_id, to_id, medical_date, submitted_date, approval_status, document) VALUES
-                                                                                                                 (1, 5, 1, '2026-10-12', '2026-10-13', 'Approved', 'medicals/m005clinic.pdf'),
-                                                                                                                 (2, 7, 1, '2026-10-13', '2026-10-14', 'Pending',  'medicals/m007clinic.pdf');
+INSERT INTO medical (medical_id, student_id, to_id, medical_date, start_date, end_date, submitted_date, approval_status, document) VALUES
+                                                                                                                                       (1, 5, 1, '2026-10-12', '2026-10-12', '2026-10-12', '2026-10-13', 'Approved', 'medicals/m005clinic.pdf'),
+                                                                                                                                       (2, 7, 1, '2026-10-13', '2026-10-13', '2026-10-13', '2026-10-14', 'Pending',  'medicals/m007clinic.pdf');
 
 
 INSERT INTO attendance_record (attendance_id, course_code, student_id, session_no, date, session_type, status, to_id, medical_id) VALUES
@@ -568,4 +570,3 @@ INSERT INTO attendance_record (attendance_id, course_code, student_id, session_n
                                                                                                                                       (8,  'ICT2132', 3, 1, '2026-10-06', 'Practical', 'Absent',  1, NULL),
                                                                                                                                       (9,  'ICT2132', 4, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
                                                                                                                                       (10, 'ICT2132', 5, 1, '2026-10-06', 'Practical', 'Absent',  1, 1);
-
