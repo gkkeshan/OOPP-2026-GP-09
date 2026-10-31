@@ -97,8 +97,7 @@ public class NoticeDAO {
         }
     }
     public boolean updateNotice(Notice notice) {
-        String query = "UPDATE notice SET title = ?, description = ? WHERE notice_id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        String query = "UPDATE notice SET title = ?, description = ?, target_audience = ? WHERE notice_id = ?";        try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, notice.getTitle());

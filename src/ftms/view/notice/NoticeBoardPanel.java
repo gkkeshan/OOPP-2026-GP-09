@@ -3,6 +3,7 @@ package ftms.view.notice;
 import ftms.exception.DatabaseException;
 import ftms.model.Notice;
 import ftms.service.NoticeService;
+import ftms.util.SessionManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -52,7 +53,8 @@ public class NoticeBoardPanel extends JPanel {
     private void loadNotices() {
         model.setRowCount(0);
         try {
-            noticeList = noticeService.getAllNotices();
+            String role = SessionManager.getCurrentUser().getRole().trim().toUpperCase();
+            noticeList = noticeService.getNoticesForRole(role);
             for (Notice n : noticeList) {
                 model.addRow(new Object[]{String.valueOf(n.getDate_posted()), n.getTitle()});
             }
