@@ -11,6 +11,7 @@ import ftms.view.marks.EligibilityPanel;
 import ftms.view.marks.GpaDashboardPanel;
 import ftms.view.marks.MarksEntryPanel;
 import ftms.view.marks.ResultsSheetPanel;
+import ftms.view.notice.NoticeBoardPanel;
 import ftms.view.profile.ProfilePanel;
 import ftms.view.users.admin.AdminDashboardPanel;
 import ftms.view.users.admin.DepartmentManagementPanel;
@@ -66,6 +67,7 @@ public class MainFrame extends JFrame {
             case "LECTURER":
                 first = "LECTURER_DASHBOARD";
                 addPage("Dashboard",   first,                new LecturerDashboardPanel());
+                addPage("Notices", "NOTICE_BOARD", new NoticeBoardPanel());
                 addPage("Materials",   "MATERIALS",          new CourseMaterialsPanel());
                 addPage("Marks Entry", "MARKS_ENTRY",        new MarksEntryPanel());
                 addPage("Eligibility", "ELIGIBILITY",        new EligibilityPanel());
@@ -75,10 +77,12 @@ public class MainFrame extends JFrame {
                 addPage("Medicals",    "MEDICAL_VIEW",       new MedicalRecordPanel());
                 addPage("Timetable",   "TIMETABLE_VIEW",     new TimetableViewPanel());
                 addPage("Profile", "PROFILE", new ProfilePanel());
+
                 break;
             case "TECHNICAL_OFFICER":
                 first = "TECHNICAL_OFFICER_DASHBOARD";
                 addPage("Dashboard",        first,               new TechnicalOfficerDashboardPanel());
+                addPage("Notices", "NOTICE_BOARD", new NoticeBoardPanel());
                 addPage("Attendance Entry", "ATTENDANCE_ENTRY",  new AttendanceEntryPanel());
                 addPage("Attendance View",  "ATTENDANCE_VIEW",   new AttendanceViewPanel());
                 addPage("Medicals",         "MEDICAL_VIEW",      new MedicalRecordPanel());
@@ -89,6 +93,7 @@ public class MainFrame extends JFrame {
             case "UNDERGRADUATE":
                 first = "UNDERGRADUATE_DASHBOARD";
                 addPage("Dashboard",   first,             new UndergraduateDashboardPanel());
+                addPage("Notices", "NOTICE_BOARD", new NoticeBoardPanel());
                 addPage("Eligibility", "ELIGIBILITY",     new EligibilityPanel());
                 addPage("Results",     "RESULTS",         new ResultsSheetPanel());
                 addPage("GPA",         "GPA",             new GpaDashboardPanel());
