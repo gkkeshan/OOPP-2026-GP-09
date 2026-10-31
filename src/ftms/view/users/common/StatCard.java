@@ -1,5 +1,7 @@
 package ftms.view.users.common;
 
+import ftms.util.Theme;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -7,17 +9,22 @@ public class StatCard extends JPanel {
     private final JLabel valueLabel;
 
     public StatCard(String value, String caption) {
-        setLayout(new BorderLayout(4, 4));
+        setLayout(new BorderLayout(6, 6));
+        setBackground(Theme.WHITE);
+        setOpaque(true);
+        putClientProperty("customBackground", Boolean.TRUE);
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(12, 16, 12, 16)));
+                BorderFactory.createLineBorder(Theme.GREY_LINE, 1),
+                BorderFactory.createEmptyBorder(14, 18, 14, 18)));
 
         valueLabel = new JLabel(value);
-        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 26f));
+        valueLabel.setFont(Theme.FONT_STAT_VALUE);
+        valueLabel.setForeground(Theme.INK);
         add(valueLabel, BorderLayout.CENTER);
 
         JLabel captionLabel = new JLabel(caption);
-        captionLabel.setForeground(new Color(90, 90, 90));
+        captionLabel.setFont(Theme.FONT_CAPTION);
+        captionLabel.setForeground(Theme.GREY_TEXT);
         add(captionLabel, BorderLayout.SOUTH);
     }
 
