@@ -31,21 +31,25 @@ public class TimetableViewPanel extends JPanel {
         JLabel title = new JLabel("Weekly Timetable", JLabel.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 16));
 
-        JPanel filterPanel = new JPanel();
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
         filterPanel.add(new JLabel("Batch:"));
         filterPanel.add(cmbBatch);
         filterPanel.add(new JLabel("Day:"));
         filterPanel.add(cmbDay);
         filterPanel.add(new JLabel("Course Code:"));
         filterPanel.add(txtCourseCode);
+
         JButton btnShow = new JButton("Show");
         JButton btnShowAll = new JButton("Show All");
-        filterPanel.add(btnShow);
-        filterPanel.add(btnShowAll);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 4));
+        buttonPanel.add(btnShow);
+        buttonPanel.add(btnShowAll);
 
-        JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.add(title, BorderLayout.NORTH);
-        northPanel.add(filterPanel, BorderLayout.SOUTH);
+        JPanel northPanel = new JPanel(new GridLayout(0, 1, 0, 2));
+        northPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 0, 6));
+        northPanel.add(title);
+        northPanel.add(filterPanel);
+        northPanel.add(buttonPanel);
         add(northPanel, BorderLayout.NORTH);
 
 
@@ -57,11 +61,10 @@ public class TimetableViewPanel extends JPanel {
         add(southPanel, BorderLayout.SOUTH);
 
 
-        cmbBatch.addItem("All Batches");
-        batchList = timetableService.getBatches();
-        for (Batch b : batchList) {
-            cmbBatch.addItem(b.getBatchId() + " - " + b.display());
-        }
+        cmbBatch.setPrototypeDisplayValue("9999 - Batch 00 (2024/2025)");
+
+        loadBatches();
+        showAll();
 
 
         btnShow.addActionListener(e -> showFiltered());
@@ -72,6 +75,25 @@ public class TimetableViewPanel extends JPanel {
                 showVenueInfo(table.getSelectedRow());
             }
         });
+    }
+
+    /** Fills the batch filter combo; the panel still opens if the database fails. */
+    private void loadBatches() {
+        try {
+            cmbBatch.removeAllItems();
+            cmbBatch.addItem("All Batches");
+            batchList = timetableService.getBatches();
+            for (Batch b : batchList) {
+                cmbBatch.addItem(b.getBatchId() + " - " + b.display());
+            }
+        } catch (RuntimeException e) {
+            lblInfo.setText("Could not load batches: " + errorMessage(e));
+        }
+    }
+
+    /** Friendly text for exceptions without a message (e.g. a failed DB connection). */
+    private String errorMessage(RuntimeException e) {
+        return e.getMessage() != null ? e.getMessage() : e.toString();
     }
 
 
