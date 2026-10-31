@@ -37,7 +37,7 @@ public class AttendanceViewPanel extends JPanel {
                 SessionManager.getCurrentUser().getRole().trim())) {
             int myStudentId = new MedicalService().getStudentIdByUserId(
                     SessionManager.getCurrentUser().getUserID());
-            studentIdField.setText(String.valueOf(myStudentId));
+            studentIdField.setText(SessionManager.getCurrentRegistrationNo());
             studentIdField.setEditable(false);
         }
 
@@ -71,8 +71,9 @@ public class AttendanceViewPanel extends JPanel {
     private void searchAttendance() {
 
         try {
-            int studentId =
-                    Integer.parseInt(studentIdField.getText().trim());
+            int studentId = SessionManager.isUndergraduate()
+                    ? SessionManager.getCurrentStudentId()
+                    : Integer.parseInt(studentIdField.getText().trim());
 
             String courseCode =
                     courseCodeField.getText().trim();

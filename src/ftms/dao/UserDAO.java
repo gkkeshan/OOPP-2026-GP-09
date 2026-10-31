@@ -119,4 +119,17 @@ public class UserDAO {
             throw new RuntimeException(e);
         }
     }
+    // Gets the human-readable registration number for the logged-in student.
+    public String getRegistrationNoByUserId(int userId) {
+        String sql = "SELECT registration_no FROM undergraduate WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
