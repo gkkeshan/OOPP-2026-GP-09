@@ -60,4 +60,7 @@ public class AttendanceReportService {
                 practicalTotal
         );
     }
+    public List<AttendanceSummary> getBatchSummary(String courseCode) throws SQLException {
+        return attendanceRecordDAO.getBatchSummaries(courseCode);
+    }
 }

@@ -1,6 +1,8 @@
 package ftms.dao;
 
+import ftms.config.DBConnection;
 import ftms.model.AttendanceRecord;
+import ftms.model.AttendanceSummary;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -76,5 +78,29 @@ public class AttendanceRecordDAO {
             }
         }
         return records;
+    }
+    /** One AttendanceSummary per student for a whole course (batch summary). */
+    public List<AttendanceSummary> getBatchSummaries(String courseCode) throws SQLException {
+        String sql = "SELECT student_id, "
+                + "SUM(CASE WHEN session_type='Theory' AND status='Present' THEN 1 ELSE 0 END) AS th_present, "
+                + "SUM(CASE WHEN session_type='Theory' THEN 1 ELSE 0 END) AS th_total, "
+                + "SUM(CASE WHEN session_type='Practical' AND status='Present' THEN 1 ELSE 0 END) AS pr_present, "
+                + "SUM(CASE WHEN session_type='Practical' THEN 1 ELSE 0 END) AS pr_total "
+                + "FROM attendance_record WHERE course_code = ? "
+                + "GROUP BY student_id ORDER BY student_id";
+        List<AttendanceSummary> summaries = new ArrayList<>();
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, courseCode.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    summaries.add(new AttendanceSummary(
+                            rs.getInt("student_id"), courseCode.trim(),
+                            rs.getInt("th_present"), rs.getInt("th_total"),
+                            rs.getInt("pr_present"), rs.getInt("pr_total")));
+                }
+            }
+        }
+        return summaries;
     }
 }
