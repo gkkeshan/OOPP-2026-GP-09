@@ -38,6 +38,7 @@ CREATE TABLE user (
                       password    VARCHAR(255)   NOT NULL,
                       role        VARCHAR(30)    NOT NULL,
                       contact_no  VARCHAR(15)    NULL,
+                      profile_picture VARCHAR(255) NULL,
                       CONSTRAINT pk_user PRIMARY KEY (user_id),
                       CONSTRAINT uq_user_email UNIQUE (email)
 ) ENGINE = InnoDB;
@@ -324,6 +325,7 @@ CREATE TABLE notice (
                         admin_id     INT           NOT NULL,
                         title        VARCHAR(150)  NOT NULL,
                         description  TEXT          NULL,
+                        target_audience VARCHAR(20) NOT NULL DEFAULT 'ALL',
                         date_posted  DATE          NOT NULL,
                         CONSTRAINT pk_notice PRIMARY KEY (notice_id),
                         CONSTRAINT fk_notice_admin FOREIGN KEY (admin_id)
@@ -555,7 +557,7 @@ INSERT INTO mark (mark_id, evaluation_id, student_id, marks, grade) VALUES
 
 
 INSERT INTO medical (medical_id, student_id, to_id, medical_date, start_date, end_date, submitted_date, approval_status, document) VALUES
-                                                                                                                                       (1, 5, 1, '2026-10-12', '2026-10-12', '2026-10-12', '2026-10-13', 'Approved', 'medicals/m005clinic.pdf'),
+                                                                                                                                       (1, 5, 1, '2026-10-12', '2026-10-12', '2026-10-13', '2026-10-14', 'Approved', 'medicals/m005clinic.pdf'),
                                                                                                                                        (2, 7, 1, '2026-10-13', '2026-10-13', '2026-10-13', '2026-10-14', 'Pending',  'medicals/m007clinic.pdf');
 
 

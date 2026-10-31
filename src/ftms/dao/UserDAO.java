@@ -279,4 +279,19 @@ public class UserDAO {
             throw new RuntimeException(e);
         }
     }
+    public int getAdminIdByUserId(int userId) {
+        String sql = "SELECT admin_id FROM admin WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error resolving admin id: " + e.getMessage());
+            return -1;
+        }
+    }
 }
