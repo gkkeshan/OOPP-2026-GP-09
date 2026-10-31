@@ -1,6 +1,5 @@
 
 
-
 package ftms.view.attendance;
 
 import ftms.model.Medical;
@@ -10,239 +9,166 @@ import ftms.util.SessionManager;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
 public class MedicalRecordPanel extends JPanel {
 
-    private final MedicalService medicalService = new MedicalService();
-    private final boolean isTO = "TECHNICAL_OFFICER".equalsIgnoreCase(SessionManager.getCurrentUser().getRole().trim());
-    private final boolean isUG = "UNDERGRADUATE".equalsIgnoreCase(SessionManager.getCurrentUser().getRole().trim());
-    private JTable table;
-    private MedicalTableModel tableModel;
-    private JTextField studentIdField;
+    private MedicalService service = new MedicalService();
+    private JTable table = new JTable();
+    private JTextField studentIdField = new JTextField(10);
+
+    private boolean isTO = SessionManager.getCurrentUser().getRole()
+            .trim().equalsIgnoreCase("TECHNICAL_OFFICER");
+
+    private boolean isUG = SessionManager.getCurrentUser().getRole()
+            .trim().equalsIgnoreCase("UNDERGRADUATE");
 
     public MedicalRecordPanel() {
+
         setLayout(new BorderLayout());
 
-        studentIdField = new JTextField(10);
+        JButton search = new JButton("Search");
+        JButton viewAll = new JButton("View All");
+        JButton add = new JButton("Add Medical");
+        JButton approve = new JButton("Approve");
+        JButton reject = new JButton("Reject");
 
-        JButton searchButton = new JButton("Search");
-        JButton viewAllButton = new JButton("View All");
-        JButton addButton = new JButton("Add Medical");
-        JButton approveButton = new JButton("Approve");
-        JButton rejectButton = new JButton("Reject");
+        JPanel top = new JPanel();
+        top.add(new JLabel("Student ID:"));
+        top.add(studentIdField);
+        top.add(search);
+        top.add(viewAll);
+        top.add(add);
 
-        JPanel topPanel = new JPanel();
+        JPanel bottom = new JPanel();
+        bottom.add(approve);
+        bottom.add(reject);
 
-        topPanel.add(new JLabel("Student ID:"));
-        topPanel.add(studentIdField);
-        topPanel.add(searchButton);
-        topPanel.add(viewAllButton);
-        topPanel.add(addButton);
+        add.addActionListener(e -> addMedical());
+        search.addActionListener(e -> searchMedical());
+        viewAll.addActionListener(e -> loadMedicals(null));
+        approve.addActionListener(e -> updateStatus("Approved"));
+        reject.addActionListener(e -> updateStatus("Rejected"));
 
-        tableModel = new MedicalTableModel(
-                new java.util.ArrayList<>());
+        add.setVisible(isTO);
+        bottom.setVisible(isTO);
 
-        table = new JTable(tableModel);
-
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.add(approveButton);
-        bottomPanel.add(rejectButton);
-
-        addButton.setVisible(isTO);
-        bottomPanel.setVisible(isTO);
-
-        addButton.setVisible(isTO);
-        bottomPanel.setVisible(isTO);
-
-        if (isUG) {                                        // ← NEW BLOCK
+        if (isUG) {
             try {
-                int myStudentId = medicalService.getStudentIdByUserId(
-                        SessionManager.getCurrentUser().getUserID());
-                if (myStudentId == -1) {
-                    JOptionPane.showMessageDialog(this,
-                            "No student profile found for this account.");
-                }
-                studentIdField.setText(String.valueOf(myStudentId));
-                studentIdField.setEditable(false);         // lock search to self
-                viewAllButton.setVisible(false);           // UG cannot load everyone
-            } catch (RuntimeException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Database error: " + ex.getMessage());
+                studentIdField.setText(String.valueOf(
+                        service.getStudentIdByUserId(
+                                SessionManager.getCurrentUser().getUserID())));
+                studentIdField.setEditable(false);
+                viewAll.setVisible(false);
+            } catch (Exception e) {
+                showError(e);
             }
         }
 
-        add(topPanel, BorderLayout.NORTH);
+        add(top, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
+        add(bottom, BorderLayout.SOUTH);
 
-        searchButton.addActionListener(e -> searchMedicals());
-        viewAllButton.addActionListener(e -> viewAllMedicals());
-        addButton.addActionListener(e -> showAddMedicalForm());
-        approveButton.addActionListener(
-                e -> updateStatus("Approved"));
-        rejectButton.addActionListener(
-                e -> updateStatus("Rejected"));
-
-        if (isUG) {
-            viewMyMedicals();
-        } else {
-            viewAllMedicals();
-        }
+        if (isUG) searchMedical();
+        else loadMedicals(null);
     }
 
-    private void showAddMedicalForm() {
+    private void addMedical() {
 
-        JTextField studentField = new JTextField(15);
-        JTextField dateField =
-                new JTextField(LocalDate.now().toString(), 15);
-        JTextField documentField = new JTextField(20);
+        JTextField student = new JTextField(15);
+        JTextField start = new JTextField(LocalDate.now().toString(), 15);
+        JTextField end = new JTextField(LocalDate.now().toString(), 15);
+        JTextField document = new JTextField(15);
 
-        JButton browseButton = new JButton("Browse");
+        JButton browse = new JButton("Browse");
 
-        JPanel documentPanel = new JPanel(new BorderLayout(5, 0));
-        documentPanel.add(documentField, BorderLayout.CENTER);
-        documentPanel.add(browseButton, BorderLayout.EAST);
-
-        browseButton.addActionListener(e -> {
+        browse.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
 
-            int result = chooser.showOpenDialog(this);
-
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File file = chooser.getSelectedFile();
-                documentField.setText(file.getAbsolutePath());
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                document.setText(
+                        chooser.getSelectedFile().getAbsolutePath());
             }
         });
 
-        JPanel form = new JPanel(new GridLayout(4, 2, 8, 8));
+        JPanel file = new JPanel(new BorderLayout(5, 0));
+        file.add(document, BorderLayout.CENTER);
+        file.add(browse, BorderLayout.EAST);
+
+        JPanel form = new JPanel(new GridLayout(4, 2, 10, 12));
+        form.setPreferredSize(new Dimension(400, 230));
+        form.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         form.add(new JLabel("Student ID:"));
-        form.add(studentField);
+        form.add(student);
 
-        form.add(new JLabel("TO ID:"));
-        JTextField toField = new JTextField(
-                String.valueOf(SessionManager.getCurrentUser().getUserID()), 15);
-        toField.setEditable(false);   // locked to the logged-in TO
-        form.add(toField);
+        form.add(new JLabel("Start Date:"));
+        form.add(start);
 
-        form.add(new JLabel("Medical Date (YYYY-MM-DD):"));
-        form.add(dateField);
+        form.add(new JLabel("End Date:"));
+        form.add(end);
 
         form.add(new JLabel("Medical Document:"));
-        form.add(documentPanel);
+        form.add(file);
 
-        int choice = JOptionPane.showConfirmDialog(
-                this,
-                form,
-                "Add Medical Record",
+        int result = JOptionPane.showConfirmDialog(
+                this, form, "Add Medical Record",
                 JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
+                JOptionPane.PLAIN_MESSAGE);
 
-        if (choice != JOptionPane.OK_OPTION) {
-            return;
-        }
+        if (result != JOptionPane.OK_OPTION) return;
 
         try {
-            int studentId = Integer.parseInt(
-                    studentField.getText().trim());
+            int studentId = Integer.parseInt(student.getText());
 
-            int toId = Integer.parseInt(
-                    toField.getText().trim());
+            LocalDate startDate = LocalDate.parse(
+                    start.getText().replaceAll("-(\\d)(-|$)", "-0$1$2"));
 
-            LocalDate medicalDate = LocalDate.parse(
-                    dateField.getText().trim());
+            LocalDate endDate = LocalDate.parse(
+                    end.getText().replaceAll("-(\\d)(-|$)", "-0$1$2"));
 
-            String document = documentField.getText().trim();
-
-            if (studentId <= 0 || toId <= 0) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Student ID and TO ID must be positive.");
+            if (endDate.isBefore(startDate)) {
+                JOptionPane.showMessageDialog(this,
+                        "End Date must be after Start Date!");
                 return;
             }
 
-            if (document.isEmpty()) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Please select a medical document.");
-                return;
+            Medical m = new Medical();
+            m.setStudentId(studentId);
+            m.setToId(SessionManager.getCurrentUser().getUserID());
+            m.setStartDate(startDate);
+            m.setEndDate(endDate);
+            m.setSubmittedDate(LocalDate.now());
+            m.setApprovalStatus("Pending");
+            m.setDocument(document.getText());
+
+            if (service.addMedical(m)) {
+                JOptionPane.showMessageDialog(this,
+                        "Medical added successfully!");
+                loadMedicals(null);
             }
 
-            Medical medical = new Medical();
-
-            medical.setStudentId(studentId);
-            medical.setToId(toId);
-            medical.setMedicalDate(medicalDate);
-            medical.setSubmittedDate(LocalDate.now());
-            medical.setApprovalStatus("Pending");
-            medical.setDocument(document);
-
-            boolean saved = medicalService.addMedical(medical);
-
-            if (saved) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Medical record added successfully!");
-
-                viewAllMedicals();
-            } else {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Medical record could not be saved.");
-            }
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Enter valid numeric Student ID and TO ID.");
-
-        } catch (java.time.format.DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Enter the medical date as YYYY-MM-DD.");
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Database error: " + ex.getMessage());
+        } catch (Exception e) {
+            showError(e);
         }
     }
 
-    private void searchMedicals() {
+    private void searchMedical() {
         try {
-            int studentId = Integer.parseInt(
-                    studentIdField.getText().trim());
-
-            List<Medical> medicals =
-                    medicalService.getByStudent(studentId);
-
-            tableModel = new MedicalTableModel(medicals);
-            table.setModel(tableModel);
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(
-                    this, "Enter a valid Student ID.");
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                    this, e.getMessage());
+            loadMedicals(service.getByStudent(
+                    Integer.parseInt(studentIdField.getText())));
+        } catch (Exception e) {
+            showError(e);
         }
     }
 
-    private void viewAllMedicals() {
+    private void loadMedicals(List<Medical> records) {
         try {
-            List<Medical> medicals = medicalService.getAll();
-
-            tableModel = new MedicalTableModel(medicals);
-            table.setModel(tableModel);
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                    this, e.getMessage());
+            if (records == null) records = service.getAll();
+            table.setModel(new MedicalTableModel(records));
+        } catch (Exception e) {
+            showError(e);
         }
     }
 
@@ -250,43 +176,27 @@ public class MedicalRecordPanel extends JPanel {
         int row = table.getSelectedRow();
 
         if (row == -1) {
-            JOptionPane.showMessageDialog(
-                    this, "Select a medical record.");
+            JOptionPane.showMessageDialog(this, "Select a record!");
             return;
         }
 
-        int modelRow = table.convertRowIndexToModel(row);
-        int medicalId = Integer.parseInt(
-                table.getModel().getValueAt(modelRow, 0).toString());
-
         try {
-            if (medicalService.updateStatus(medicalId, status)) {
-                JOptionPane.showMessageDialog(
-                        this, "Status updated.");
-                viewAllMedicals();
-            } else {
-                JOptionPane.showMessageDialog(
-                        this, "Medical record was not updated.");
-            }
+            int id = Integer.parseInt(
+                    table.getValueAt(row, 0).toString());
 
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(
-                    this, e.getMessage());
+            service.updateStatus(id, status);
+            loadMedicals(null);
+
+            JOptionPane.showMessageDialog(this, "Status updated!");
+
+        } catch (Exception e) {
+            showError(e);
         }
     }
-    // Loads only the logged-in undergraduate's own medical records.
-    private void viewMyMedicals() {
-        try {
-            int myStudentId = medicalService.getStudentIdByUserId(
-                    SessionManager.getCurrentUser().getUserID());
 
-            List<Medical> medicals = medicalService.getByStudent(myStudentId);
-            tableModel = new MedicalTableModel(medicals);
-            table.setModel(tableModel);
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
-        }
+    private void showError(Exception e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
     }
 }
+
 

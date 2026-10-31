@@ -1,3 +1,4 @@
+
 package ftms.view.attendance;
 
 import ftms.model.Medical;
@@ -7,13 +8,9 @@ import java.util.List;
 public class MedicalTableModel extends AbstractTableModel {
 
     private final String[] columns = {
-            "Medical ID",
-            "Student ID",
-            "TO ID",
-            "Medical Date",
-            "Submitted Date",
-            "Approval Status",
-            "Document"
+            "Medical ID", "Student ID", "TO ID",
+            "Start Date", "End Date", "Submitted Date",
+            "Approval Status", "Document"
     };
 
     private final List<Medical> medicalRecords;
@@ -42,22 +39,16 @@ public class MedicalTableModel extends AbstractTableModel {
         Medical m = medicalRecords.get(row);
 
         switch (col) {
-            case 0:
-                return m.getMedicalId();
-            case 1:
-                return m.getStudentId();
-            case 2:
-                return m.getToId();
-            case 3:
-                return m.getMedicalDate();
-            case 4:
-                return m.getSubmittedDate();
-            case 5:
-                return m.getApprovalStatus();
-            case 6:
-                return m.getDocument();
-            default:
-                return null;
+            case 0: return m.getMedicalId();
+            case 1: return m.getStudentId();
+            case 2: return m.getToId();
+            case 3: return m.getStartDate();
+            case 4: return m.getEndDate();
+            case 5: return m.getSubmittedDate();
+            case 6: return m.getApprovalStatus();
+            case 7: return m.getDocument();
+            default: return null;
         }
     }
 }
+
