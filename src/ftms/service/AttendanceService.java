@@ -4,6 +4,7 @@ package ftms.service;
 import ftms.config.DBConnection;
 import ftms.dao.AttendanceRecordDAO;
 import ftms.dao.AttendanceSessionDAO;
+import ftms.dao.UserDAO;
 import ftms.model.AttendanceRecord;
 import ftms.model.AttendanceSession;
 
@@ -20,8 +21,29 @@ public class AttendanceService {
     private final AttendanceSessionDAO attendanceSessionDAO =
             new AttendanceSessionDAO();
 
-    // Get attendance records for a student and course.
+    private final UserDAO userDAO = new UserDAO();
+
+    // Get attendance records for a student and course by registration number.
     public List<AttendanceRecord> getAttendance(
+            String registrationNo, String courseCode) throws SQLException {
+
+        Connection connection = DBConnection.getConnection();
+
+        if (connection == null) {
+            throw new SQLException("Database connection failed.");
+        }
+
+        int studentId = userDAO.getStudentIdByRegistrationNo(registrationNo);
+        if (studentId == -1) {
+            throw new SQLException("Student not found with registration number: " + registrationNo);
+        }
+
+        return attendanceRecordDAO.getByStudentAndCourse(
+                connection, studentId, courseCode);
+    }
+
+    // Get attendance records for a student and course by student ID (legacy method).
+    public List<AttendanceRecord> getAttendanceById(
             int studentId, String courseCode) throws SQLException {
 
         Connection connection = DBConnection.getConnection();
@@ -66,32 +88,67 @@ public class AttendanceService {
                 connection, courseCode);
     }
 
-    // Calculate Theory attendance percentage.
+    // Calculate Theory attendance percentage by registration number.
     public double getTheoryPercentage(
-            int studentId, String courseCode) throws SQLException {
+            String registrationNo, String courseCode) throws SQLException {
+
+        int studentId = userDAO.getStudentIdByRegistrationNo(registrationNo);
+        if (studentId == -1) {
+            throw new SQLException("Student not found with registration number: " + registrationNo);
+        }
 
         List<AttendanceRecord> records =
-                getAttendance(studentId, courseCode);
+                getAttendanceById(studentId, courseCode);
 
         return calculatePercentage(records, "Theory");
     }
 
-    // Calculate Practical attendance percentage.
-    public double getPracticalPercentage(
+    // Calculate Theory attendance percentage by student ID (legacy).
+    public double getTheoryPercentageById(
             int studentId, String courseCode) throws SQLException {
 
         List<AttendanceRecord> records =
-                getAttendance(studentId, courseCode);
+                getAttendanceById(studentId, courseCode);
+
+        return calculatePercentage(records, "Theory");
+    }
+
+    // Calculate Practical attendance percentage by registration number.
+    public double getPracticalPercentage(
+            String registrationNo, String courseCode) throws SQLException {
+
+        int studentId = userDAO.getStudentIdByRegistrationNo(registrationNo);
+        if (studentId == -1) {
+            throw new SQLException("Student not found with registration number: " + registrationNo);
+        }
+
+        List<AttendanceRecord> records =
+                getAttendanceById(studentId, courseCode);
 
         return calculatePercentage(records, "Practical");
     }
 
-    // Calculate Combined attendance percentage.
-    public double getCombinedPercentage(
+    // Calculate Practical attendance percentage by student ID (legacy).
+    public double getPracticalPercentageById(
             int studentId, String courseCode) throws SQLException {
 
         List<AttendanceRecord> records =
-                getAttendance(studentId, courseCode);
+                getAttendanceById(studentId, courseCode);
+
+        return calculatePercentage(records, "Practical");
+    }
+
+    // Calculate Combined attendance percentage by registration number.
+    public double getCombinedPercentage(
+            String registrationNo, String courseCode) throws SQLException {
+
+        int studentId = userDAO.getStudentIdByRegistrationNo(registrationNo);
+        if (studentId == -1) {
+            throw new SQLException("Student not found with registration number: " + registrationNo);
+        }
+
+        List<AttendanceRecord> records =
+                getAttendanceById(studentId, courseCode);
 
         if (records.isEmpty()) {
             return 0.0;
@@ -108,11 +165,40 @@ public class AttendanceService {
         return present * 100.0 / records.size();
     }
 
-    // Method for integration with other modules.
-    public double getPercentage(
+    // Calculate Combined attendance percentage by student ID (legacy).
+    public double getCombinedPercentageById(
             int studentId, String courseCode) throws SQLException {
 
-        return getCombinedPercentage(studentId, courseCode);
+        List<AttendanceRecord> records =
+                getAttendanceById(studentId, courseCode);
+
+        if (records.isEmpty()) {
+            return 0.0;
+        }
+
+        int present = 0;
+
+        for (AttendanceRecord record : records) {
+            if ("Present".equals(record.getStatus())) {
+                present++;
+            }
+        }
+
+        return present * 100.0 / records.size();
+    }
+
+    // Method for integration with other modules by registration number.
+    public double getPercentage(
+            String registrationNo, String courseCode) throws SQLException {
+
+        return getCombinedPercentage(registrationNo, courseCode);
+    }
+
+    // Method for integration with other modules by student ID (legacy).
+    public double getPercentageById(
+            int studentId, String courseCode) throws SQLException {
+
+        return getCombinedPercentageById(studentId, courseCode);
     }
 
     // Calculate percentage for Theory or Practical.

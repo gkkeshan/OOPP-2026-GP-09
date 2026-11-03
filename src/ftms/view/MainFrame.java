@@ -99,16 +99,17 @@ public class MainFrame extends JFrame {
                 break;
             case "UNDERGRADUATE":
                 first = "UNDERGRADUATE_DASHBOARD";
-                addPage("Dashboard",   first,             new UndergraduateDashboardPanel());
-                addPage("Notices",     "NOTICE_BOARD",    new NoticeBoardPanel());
-                addPage("Eligibility", "ELIGIBILITY",     new EligibilityPanel());
-                addPage("Results",     "RESULTS",         new ResultsSheetPanel());
-                addPage("GPA",         "GPA",             new GpaDashboardPanel());
-                addPage("Attendance",  "ATTENDANCE_VIEW", new AttendanceViewPanel());
-                addPage("Medicals",    "MEDICAL_VIEW",    new MedicalRecordPanel());
-                addPage("Timetable",   "TIMETABLE_VIEW",  new TimetableViewPanel());
-                addPage("Courses",     "MY_COURSES",      new MyCoursesPanel());
-                addPage("Profile",     "PROFILE",         new ProfilePanel());
+                addPage("Dashboard",   first,                  new UndergraduateDashboardPanel());
+                addPage("Notices",     "NOTICE_BOARD",         new NoticeBoardPanel());
+                addPage("Eligibility", "ELIGIBILITY",          new EligibilityPanel());
+                addPage("Results",     "RESULTS",              new ResultsSheetPanel());
+                addPage("GPA",         "GPA",                  new GpaDashboardPanel());
+                addPage("Attendance",  "ATTENDANCE_VIEW",      new AttendanceViewPanel());
+                addPage("Medicals",    "MEDICAL_VIEW",         new MedicalRecordPanel());
+                addPage("Timetable",   "TIMETABLE_VIEW",       new TimetableViewPanel());
+                addPage("My Courses",  "MY_COURSES",           new MyCoursesPanel());
+                addPage("Register",    "COURSE_REGISTRATION", new CourseRegistrationPanel());
+                addPage("Profile",     "PROFILE",              new ProfilePanel());
                 break;
             default:
                 throw new IllegalStateException("Unknown role");

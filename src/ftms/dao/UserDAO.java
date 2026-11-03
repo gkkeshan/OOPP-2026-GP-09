@@ -294,4 +294,47 @@ public class UserDAO {
             return -1;
         }
     }
+
+    public int getStudentIdByRegistrationNo(String registrationNo) {
+        String sql = "SELECT student_id FROM undergraduate WHERE registration_no = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, registrationNo.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error resolving student id by registration number: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    public int getDepartmentIdByStudentId(int studentId) {
+        String sql = "SELECT b.department_id FROM undergraduate ug " +
+                "JOIN batch b ON ug.batch_id = b.batch_id WHERE ug.student_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error resolving department id by student id: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    public int getBatchIdByStudentId(int studentId) {
+        String sql = "SELECT batch_id FROM undergraduate WHERE student_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error resolving batch id by student id: " + e.getMessage());
+            return -1;
+        }
+    }
 }

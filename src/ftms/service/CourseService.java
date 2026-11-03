@@ -94,4 +94,9 @@ public class CourseService {
     public List<EnrolledCourse> getEnrolledCourseDetails(int userId) {
         return courseDAO.findEnrolledCoursesByStudent(userId);
     }
+
+    // Module-based course enrollment filtered by department and batch
+    public List<Course> getCoursesByDepartmentAndBatch(int departmentId, int batchId) {
+        return courseDAO.findByDepartmentAndBatch(departmentId, batchId);
+    }
 }

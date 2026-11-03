@@ -35,8 +35,6 @@ public class AttendanceViewPanel extends JPanel {
 
         if ("UNDERGRADUATE".equalsIgnoreCase(
                 SessionManager.getCurrentUser().getRole().trim())) {
-            int myStudentId = new MedicalService().getStudentIdByUserId(
-                    SessionManager.getCurrentUser().getUserID());
             studentIdField.setText(SessionManager.getCurrentRegistrationNo());
             studentIdField.setEditable(false);
         }
@@ -45,7 +43,7 @@ public class AttendanceViewPanel extends JPanel {
 
         JPanel searchPanel = new JPanel(new FlowLayout());
 
-        searchPanel.add(new JLabel("Student ID:"));
+        searchPanel.add(new JLabel("Registration No:"));
         searchPanel.add(studentIdField);
 
         searchPanel.add(new JLabel("Course Code:"));
@@ -71,12 +69,18 @@ public class AttendanceViewPanel extends JPanel {
     private void searchAttendance() {
 
         try {
-            int studentId = SessionManager.isUndergraduate()
-                    ? SessionManager.getCurrentStudentId()
-                    : Integer.parseInt(studentIdField.getText().trim());
+            String registrationNo = SessionManager.isUndergraduate()
+                    ? SessionManager.getCurrentRegistrationNo()
+                    : studentIdField.getText().trim();
 
             String courseCode =
                     courseCodeField.getText().trim();
+
+            if (registrationNo.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this, "Please enter a registration number.");
+                return;
+            }
 
             if (courseCode.isEmpty()) {
                 JOptionPane.showMessageDialog(
@@ -86,7 +90,7 @@ public class AttendanceViewPanel extends JPanel {
 
             List<AttendanceRecord> records =
                     attendanceService.getAttendance(
-                            studentId, courseCode);
+                            registrationNo, courseCode);
 
             tableModel = new AttendanceTableModel(records);
             attendanceTable.setModel(tableModel);
@@ -95,10 +99,6 @@ public class AttendanceViewPanel extends JPanel {
                 JOptionPane.showMessageDialog(
                         this, "No attendance records found.");
             }
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(
-                    this, "Please enter a valid Student ID.");
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(
