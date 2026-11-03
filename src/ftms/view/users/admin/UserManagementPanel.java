@@ -14,6 +14,8 @@ public class UserManagementPanel extends JPanel {
     private final UserService userService = new UserService();
     private JTable table;
     private DefaultTableModel model;
+    private JComboBox<String> roleFilter;
+    private JTextField searchField;
 
     public UserManagementPanel() {
         setLayout(new BorderLayout(10, 10));
@@ -26,6 +28,21 @@ public class UserManagementPanel extends JPanel {
         };
         table = new JTable(model);
         add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // Filter and Search Panel
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        filterPanel.setBorder(BorderFactory.createTitledBorder("Filter & Search"));
+
+        filterPanel.add(new JLabel("Role:"));
+        String[] roles = {"All", "ADMIN", "LECTURER", "TECHNICAL_OFFICER", "UNDERGRADUATE"};
+        roleFilter = new JComboBox<>(roles);
+        filterPanel.add(roleFilter);
+
+        filterPanel.add(new JLabel("Search:"));
+        searchField = new JTextField(20);
+        filterPanel.add(searchField);
+
+        add(filterPanel, BorderLayout.NORTH);
 
         JButton refresh = new JButton("Refresh");
         JButton create = new JButton("Create User");
@@ -47,13 +64,32 @@ public class UserManagementPanel extends JPanel {
         delete.addActionListener(e -> deleteSelected());
         resetPw.addActionListener(e -> resetPassword());
 
+        // Add listeners for filter and search
+        roleFilter.addActionListener(e -> loadUsers());
+        searchField.addActionListener(e -> loadUsers());
+
         loadUsers();
     }
 
     private void loadUsers() {
         try {
             model.setRowCount(0);
+            String selectedRole = (String) roleFilter.getSelectedItem();
+            String searchText = searchField.getText().trim().toLowerCase();
+
             for (User u : userService.getAllUsers()) {
+                // Role filter
+                if (!"All".equals(selectedRole) && !selectedRole.equals(u.getRole())) {
+                    continue;
+                }
+
+                // Search filter (name or email)
+                if (!searchText.isEmpty() &&
+                        !u.getUserName().toLowerCase().contains(searchText) &&
+                        !u.getEmail().toLowerCase().contains(searchText)) {
+                    continue;
+                }
+
                 model.addRow(new Object[]{u.getUserID(), u.getUserName(),
                         u.getEmail(), u.getRole(), u.getContactNumber()});
             }
