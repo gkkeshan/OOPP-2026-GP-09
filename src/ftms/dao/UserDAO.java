@@ -1,6 +1,5 @@
 package ftms.dao;
 
-import com.mysql.cj.xdevapi.DbDoc;
 import ftms.config.DBConnection;
 import ftms.exception.DuplicateUserException;
 import ftms.model.*;
@@ -143,7 +142,7 @@ public class UserDAO {
                           String role, String contactNo, String extra)
             throws DuplicateUserException {
 
-        String insertUserSql = "INSERT INTO user (user_name, email, password, role, contact_no) VALUES (?, ?, ?, ?, ?)";
+        String insertUserSql = "INSERT INTO user (user_name, email, password, role, contact_no, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection()) {
             conn.setAutoCommit(false);   // user row + role row must succeed together
@@ -157,6 +156,7 @@ public class UserDAO {
                     ps.setString(3, hashedPassword);
                     ps.setString(4, role);
                     ps.setString(5, contactNo);
+                    ps.setString(6, "profile_pics/default.jpg");
                     ps.executeUpdate();
 
                     try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -335,6 +335,18 @@ public class UserDAO {
         } catch (SQLException e) {
             System.err.println("Error resolving batch id by student id: " + e.getMessage());
             return -1;
+        }
+    }
+
+    // Updates all users without a profile picture to use the default one
+    public int setDefaultProfilePictureForAllUsers() {
+        String sql = "UPDATE user SET profile_picture = 'profile_pics/default.jpg' WHERE profile_picture IS NULL OR profile_picture = ''";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error setting default profile pictures: " + e.getMessage());
+            return 0;
         }
     }
 }

@@ -1,5 +1,6 @@
 package ftms.view;
 
+import ftms.dao.UserDAO;
 import ftms.exception.AuthenticationException;
 import ftms.exception.DatabaseException;
 import ftms.model.User;
@@ -23,7 +24,23 @@ public class LoginFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
+
+        // Initialize default profile pictures for existing users (one-time)
+        initializeDefaultProfilePictures();
+
         initComponents();
+    }
+
+    private void initializeDefaultProfilePictures() {
+        try {
+            UserDAO userDAO = new UserDAO();
+            int updated = userDAO.setDefaultProfilePictureForAllUsers();
+            if (updated > 0) {
+                System.out.println("Initialized default profile picture for " + updated + " users.");
+            }
+        } catch (Exception e) {
+            System.err.println("Note: Could not initialize default profile pictures: " + e.getMessage());
+        }
     }
 
     private void initComponents() {
