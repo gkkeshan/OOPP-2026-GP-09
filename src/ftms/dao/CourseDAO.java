@@ -2,6 +2,7 @@ package ftms.dao;
 
 import ftms.config.DBConnection;
 import ftms.model.Course;
+import ftms.model.EnrolledCourse;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -81,6 +82,58 @@ public class CourseDAO {
             return list;
         } catch (SQLException e) {
             throw new RuntimeException("Could not load courses of lecturer: " + e.getMessage(), e);
+        }
+    }
+    public List<Course> findByStudent(int userId) {
+        String sql = "SELECT c.* FROM enrollment e " +
+                "JOIN undergraduate ug ON ug.student_id = e.student_id " +
+                "JOIN course c ON c.course_code = e.course_code " +
+                "WHERE ug.user_id = ? ORDER BY c.course_code";
+        List<Course> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(mapRow(rs));
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load student courses: " + e.getMessage(), e);
+        }
+    }
+    public List<EnrolledCourse> findEnrolledCoursesByStudent(int userId) {
+        String sql = "SELECT c.course_code, c.course_name, c.credit_hours, " +
+                "       c.has_theory, c.has_practical, " +
+                "       e.academic_year, e.semester, e.status " +
+                "FROM enrollment e " +
+                "JOIN undergraduate ug ON ug.student_id = e.student_id " +
+                "JOIN course c ON c.course_code = e.course_code " +
+                "WHERE ug.user_id = ? ORDER BY c.course_code";
+
+        List<EnrolledCourse> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    boolean theory    = rs.getBoolean("has_theory");
+                    boolean practical = rs.getBoolean("has_practical");
+                    String type = (theory && practical) ? "Theory + Practical"
+                            : (theory ? "Theory" : "Practical");
+
+                    list.add(new EnrolledCourse(
+                            rs.getString("course_code"),
+                            rs.getString("course_name"),
+                            rs.getInt("credit_hours"),
+                            type,
+                            rs.getString("academic_year"),
+                            rs.getString("semester"),
+                            rs.getString("status")));
+                }
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not load enrolled courses: " + e.getMessage(), e);
         }
     }
 

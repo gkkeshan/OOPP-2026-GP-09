@@ -2,6 +2,7 @@ package ftms.view.marks;
 
 import ftms.model.SemesterResult;
 import ftms.service.ResultSheetService;
+import ftms.util.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,6 +47,13 @@ public class GpaDashboardPanel extends JPanel {
         add(new JScrollPane(historyTable), BorderLayout.CENTER);
 
         loadButton.addActionListener(event -> loadGpa());
+
+        if (SessionManager.isUndergraduate()
+                && SessionManager.getCurrentStudentId() != -1) {
+            studentIdField.setText(SessionManager.getCurrentRegistrationNo());
+            studentIdField.setEditable(false);
+            loadGpa();
+        }
     }
 
     private JPanel createMetricPanel(String title, JLabel value) {
@@ -58,7 +66,9 @@ public class GpaDashboardPanel extends JPanel {
     }
 
     private void loadGpa() {
-        String studentId = studentIdField.getText().trim();
+        String studentId = SessionManager.isUndergraduate()
+                ? String.valueOf(SessionManager.getCurrentStudentId())
+                : studentIdField.getText().trim();
         loadButton.setEnabled(false);
         new SwingWorker<List<SemesterResult>, Void>() {
             @Override

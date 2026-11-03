@@ -5,6 +5,8 @@ import ftms.dao.DepartmentDAO;
 import ftms.exception.CourseNotFoundException;
 import ftms.model.Course;
 import ftms.model.Department;
+import ftms.model.EnrolledCourse;
+
 import java.util.List;
 
 public class CourseService {
@@ -85,5 +87,11 @@ public class CourseService {
             throw new IllegalArgumentException("Department not found: " + departmentId);
         }
         departmentDAO.deleteById(departmentId);
+    }
+    public List<Course> getCoursesByStudent(int userId) {
+        return courseDAO.findByStudent(userId);
+    }
+    public List<EnrolledCourse> getEnrolledCourseDetails(int userId) {
+        return courseDAO.findEnrolledCoursesByStudent(userId);
     }
 }

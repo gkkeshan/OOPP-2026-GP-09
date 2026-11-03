@@ -11,6 +11,7 @@ public class AuthService {
     private UserDAO userDAO = new UserDAO();
 
     public User login(String email, String password) throws AuthenticationException, DatabaseException {
+
         try {
             User user = userDAO.getUserByEmail(email);
             if (user == null) {
@@ -23,6 +24,13 @@ public class AuthService {
 
             // Successful login, set current session
             SessionManager.setCurrentUser(user);
+            // Resolve the student_id once at login (only for undergraduates)
+            if ("UNDERGRADUATE".equalsIgnoreCase(user.getRole().trim())) {
+                SessionManager.setCurrentStudentId(
+                        userDAO.getStudentIdByUserId(user.getUserID()));
+                SessionManager.setCurrentRegistrationNo(          // ← NEW LINE FOR GET THE REGISTRATION NUMBER
+                        userDAO.getRegistrationNoByUserId(user.getUserID()));
+            }
             return user;
         } catch (Exception e) {
             if (e instanceof AuthenticationException) {

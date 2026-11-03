@@ -7,6 +7,7 @@ public abstract class User {
     private String password;
     private String role;
     private String contactNumber;
+    private String profilePicture;
 
     public User(){ }
 
@@ -73,6 +74,14 @@ public abstract class User {
 
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package ftms.view.course;
 
 import ftms.exception.TimetableConflictException;
+import ftms.model.Batch;
 import ftms.model.SessionType;
 import ftms.model.Timetable;
 import ftms.model.Venue;
@@ -8,49 +9,81 @@ import ftms.service.TimetableService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TimetableManagementPanel extends JPanel {
 
     private TimetableService timetableService = new TimetableService();
 
-    private TimetableTableModel tableModel;
-    private JTable timetableTable;
+    private JTextField txtCourseCode = new JTextField(10);
+    private JComboBox<String> cmbBatch = new JComboBox<>();
+    private JComboBox<String> cmbVenue = new JComboBox<>();
+    private JComboBox<SessionType> cmbType = new JComboBox<>(SessionType.values());
+    private JComboBox<String> cmbDay = new JComboBox<>(
+            new String[]{"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"});
+    private JTextField txtStart = new JTextField(8);
+    private JTextField txtEnd = new JTextField(8);
 
-    private JTextField txtCourseCode;
-    private JComboBox<String> cmbVenue;
-    private JComboBox<SessionType> cmbType;
-    private JTextField txtDate;
-    private JTextField txtStart;
-    private JTextField txtEnd;
-
-    private List<Venue> venueList;
+    private List<Batch> batchList = new ArrayList<>();
+    private List<Venue> venueList = new ArrayList<>();
+    private JTable table = new JTable();
 
     public TimetableManagementPanel() {
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout());
 
-        // 1. Title Header
-        JLabel headerLabel = new JLabel("Timetable Management", JLabel.CENTER);
-        headerLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        add(headerLabel, BorderLayout.NORTH);
 
-        // 2. Input Form (West)
-        add(buildFormPanel(), BorderLayout.WEST);
+        JLabel title = new JLabel("Timetable Management", JLabel.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 16));
+        add(title, BorderLayout.NORTH);
 
-        // 3. Session Table (Center)
-        tableModel = new TimetableTableModel(timetableService.getAllSessions());
-        timetableTable = new JTable(tableModel);
-        timetableTable.getSelectionModel().addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) {
-                return;
-            }
-            onRowSelect();
-        });
-        add(new JScrollPane(timetableTable), BorderLayout.CENTER);
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createTitledBorder("Session Details"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        // 4. Action Buttons (South)
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("Course Code:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtCourseCode, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        formPanel.add(new JLabel("Batch:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(cmbBatch, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        formPanel.add(new JLabel("Venue:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(cmbVenue, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(new JLabel("Session Type:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(cmbType, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 4;
+        formPanel.add(new JLabel("Day:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(cmbDay, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 5;
+        formPanel.add(new JLabel("Start (hh:mm):"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtStart, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 6;
+        formPanel.add(new JLabel("End (hh:mm):"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtEnd, gbc);
+
+        add(formPanel, BorderLayout.WEST);
+
+
+        add(new JScrollPane(table), BorderLayout.CENTER);
+
         JPanel buttonPanel = new JPanel();
         JButton btnAdd = new JButton("Add Session");
         JButton btnUpdate = new JButton("Update Session");
@@ -62,179 +95,146 @@ public class TimetableManagementPanel extends JPanel {
         buttonPanel.add(btnRefresh);
         add(buttonPanel, BorderLayout.SOUTH);
 
+
+        loadBatches();
+        loadVenues();
+        refreshTable();
+
+
         btnAdd.addActionListener(e -> onAdd());
         btnUpdate.addActionListener(e -> onUpdate());
         btnDelete.addActionListener(e -> onDelete());
         btnRefresh.addActionListener(e -> refreshTable());
 
-        // 5. Load Venues
-        loadVenues();
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                fillForm(table.getSelectedRow());
+            }
+        });
     }
 
-    private JPanel buildFormPanel() {
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBorder(BorderFactory.createTitledBorder("Session Details"));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        txtCourseCode = new JTextField(12);
-        cmbVenue = new JComboBox<>();
-        cmbType = new JComboBox<>(SessionType.values());
-        txtDate = new JTextField(12);
-        txtStart = new JTextField(12);
-        txtEnd = new JTextField(12);
-
-        addFormField(formPanel, gbc, 0, "Course Code", txtCourseCode);
-        addFormField(formPanel, gbc, 1, "Venue", cmbVenue);
-        addFormField(formPanel, gbc, 2, "Type", cmbType);
-        addFormField(formPanel, gbc, 3, "Date (yyyy-mm-dd)", txtDate);
-        addFormField(formPanel, gbc, 4, "Start (hh:mm)", txtStart);
-        addFormField(formPanel, gbc, 5, "End (hh:mm)", txtEnd);
-
-        return formPanel;
-    }
-
-    private void addFormField(JPanel panel, GridBagConstraints gbc, int row, String label, JComponent field) {
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(new JLabel(label), gbc);
-        gbc.gridx = 1;
-        panel.add(field, gbc);
-    }
-
-    // 6. Form Actions
-
-    private void onAdd() {
-        try {
-            timetableService.addSession(readForm(0));
-            refreshTable();
-            clearForm();
-            JOptionPane.showMessageDialog(this, "Session added successfully");
-        } catch (TimetableConflictException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Timetable Conflict", JOptionPane.WARNING_MESSAGE);
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Invalid Input", JOptionPane.WARNING_MESSAGE);
-        } catch (RuntimeException ex) {
-            JOptionPane.showMessageDialog(this, "Cannot add session: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    private void loadBatches() {
+        cmbBatch.removeAllItems();
+        batchList = timetableService.getBatches();
+        for (Batch b : batchList) {
+            cmbBatch.addItem(b.getBatchId() + " - " + b.display());
         }
-    }
-
-    private void onUpdate() {
-        int row = timetableTable.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a session from the table first");
-            return;
-        }
-        try {
-            Timetable selected = tableModel.getTimetableAt(row);
-            timetableService.updateSession(readForm(selected.getTimetableId()));
-            refreshTable();
-            clearForm();
-            JOptionPane.showMessageDialog(this, "Session updated successfully");
-        } catch (TimetableConflictException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Timetable Conflict", JOptionPane.WARNING_MESSAGE);
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Invalid Input", JOptionPane.WARNING_MESSAGE);
-        } catch (RuntimeException ex) {
-            JOptionPane.showMessageDialog(this, "Cannot update session: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void onDelete() {
-        int row = timetableTable.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a session from the table first");
-            return;
-        }
-        Timetable selected = tableModel.getTimetableAt(row);
-        int choice = JOptionPane.showConfirmDialog(this,
-                "Delete session #" + selected.getTimetableId() + " (" + selected.getCourseCode() + ")?",
-                "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        if (choice != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            timetableService.deleteSession(selected.getTimetableId());
-            refreshTable();
-            clearForm();
-            JOptionPane.showMessageDialog(this, "Session deleted successfully");
-        } catch (RuntimeException ex) {
-            JOptionPane.showMessageDialog(this, "Cannot delete session: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void onRowSelect() {
-        int row = timetableTable.getSelectedRow();
-        if (row < 0) {
-            return;
-        }
-        Timetable t = tableModel.getTimetableAt(row);
-        txtCourseCode.setText(t.getCourseCode());
-        cmbVenue.setSelectedIndex(findVenueIndex(t.getVenueId()));
-        cmbType.setSelectedItem(t.getSessionType());
-        txtDate.setText(t.getSessionDate().toString());
-        txtStart.setText(t.getStartTime().toString());
-        txtEnd.setText(t.getEndTime().toString());
-    }
-
-    // 7. Helpers
-
-    private Timetable readForm(int timetableId) {
-        String courseCode = txtCourseCode.getText().trim();
-        if (courseCode.isEmpty()) {
-            throw new IllegalArgumentException("Please enter a course code");
-        }
-        int venueIndex = cmbVenue.getSelectedIndex();
-        if (venueIndex < 0) {
-            throw new IllegalArgumentException("Please select a venue");
-        }
-        LocalDate date = LocalDate.parse(txtDate.getText().trim());
-        LocalTime start = LocalTime.parse(txtStart.getText().trim());
-        LocalTime end = LocalTime.parse(txtEnd.getText().trim());
-        SessionType type = (SessionType) cmbType.getSelectedItem();
-        return new Timetable(timetableId, courseCode, venueList.get(venueIndex).getVenueId(), start, end, type, date);
     }
 
     private void loadVenues() {
-        venueList = timetableService.getVenues();
         cmbVenue.removeAllItems();
+        venueList = timetableService.getVenues();
         for (Venue v : venueList) {
             cmbVenue.addItem(v.getVenueId() + " - " + v.getVenueName());
         }
     }
 
-    private int findVenueIndex(int venueId) {
-        for (int i = 0; i < venueList.size(); i++) {
-            if (venueList.get(i).getVenueId() == venueId) {
-                return i;
+    private void refreshTable() {
+        table.setModel(new TimetableTableModel(timetableService.getAllSessions()));
+    }
+
+    private Timetable readForm(int timetableId) {
+        String courseCode = txtCourseCode.getText().trim();
+        int batchIndex = cmbBatch.getSelectedIndex();
+        int venueIndex = cmbVenue.getSelectedIndex();
+        SessionType type = (SessionType) cmbType.getSelectedItem();
+        String day = (String) cmbDay.getSelectedItem();
+        LocalTime start = LocalTime.parse(txtStart.getText().trim());
+        LocalTime end = LocalTime.parse(txtEnd.getText().trim());
+
+        if (courseCode.isEmpty()) {
+            throw new IllegalArgumentException("Course code is required");
+        }
+        if (batchIndex == -1) {
+            throw new IllegalArgumentException("Please select a batch");
+        }
+        if (venueIndex == -1) {
+            throw new IllegalArgumentException("Please select a venue");
+        }
+        Batch batch = batchList.get(batchIndex);
+        Venue venue = venueList.get(venueIndex);
+        return new Timetable(timetableId, courseCode, batch.getBatchId(), venue.getVenueId(), start, end, type, day);
+    }
+
+    private void onAdd() {
+        try {
+            Timetable t = readForm(0);
+            timetableService.addSession(t);
+            refreshTable();
+            JOptionPane.showMessageDialog(this, "Session added");
+        } catch (TimetableConflictException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }
+
+    private void onUpdate() {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Select a session to update");
+            return;
+        }
+        try {
+            Timetable selected = ((TimetableTableModel) table.getModel()).getTimetableAt(row);
+            Timetable t = readForm(selected.getTimetableId());
+            timetableService.updateSession(t);
+            refreshTable();
+            JOptionPane.showMessageDialog(this, "Session updated");
+        } catch (TimetableConflictException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }
+
+    private void onDelete() {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Select a session to delete");
+            return;
+        }
+        try {
+            Timetable selected = ((TimetableTableModel) table.getModel()).getTimetableAt(row);
+            timetableService.deleteSession(selected.getTimetableId());
+            refreshTable();
+            JOptionPane.showMessageDialog(this, "Session deleted");
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }
+
+
+    private void fillForm(int row) {
+        Timetable t = ((TimetableTableModel) table.getModel()).getTimetableAt(row);
+        txtCourseCode.setText(t.getCourseCode());
+        for (int i = 0; i < batchList.size(); i++) {
+            if (batchList.get(i).getBatchId() == t.getBatchId()) {
+                cmbBatch.setSelectedIndex(i);
             }
         }
-        return -1;
+        for (int i = 0; i < venueList.size(); i++) {
+            if (venueList.get(i).getVenueId() == t.getVenueId()) {
+                cmbVenue.setSelectedIndex(i);
+            }
+        }
+        cmbType.setSelectedItem(t.getSessionType());
+        cmbDay.setSelectedItem(t.getDayOfWeek());
+        txtStart.setText(t.getStartTime().toString());
+        txtEnd.setText(t.getEndTime().toString());
     }
-
-    private void refreshTable() {
-        tableModel = new TimetableTableModel(timetableService.getAllSessions());
-        timetableTable.setModel(tableModel);
-    }
-
-    private void clearForm() {
-        txtCourseCode.setText("");
-        cmbVenue.setSelectedIndex(-1);
-        cmbType.setSelectedIndex(0);
-        txtDate.setText("");
-        txtStart.setText("");
-        txtEnd.setText("");
-    }
-
-    // 8. Standalone Test Runner
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Timetable Management");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setContentPane(new TimetableManagementPanel());
-            frame.setSize(1000, 600);
+            frame.setSize(950, 560);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });

@@ -3,6 +3,8 @@ package ftms.view.attendance;
 
 import ftms.model.AttendanceRecord;
 import ftms.service.AttendanceService;
+import ftms.service.MedicalService;
+import ftms.util.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +32,14 @@ public class AttendanceViewPanel extends JPanel {
 
         studentIdField = new JTextField(10);
         courseCodeField = new JTextField(10);
+
+        if ("UNDERGRADUATE".equalsIgnoreCase(
+                SessionManager.getCurrentUser().getRole().trim())) {
+            int myStudentId = new MedicalService().getStudentIdByUserId(
+                    SessionManager.getCurrentUser().getUserID());
+            studentIdField.setText(SessionManager.getCurrentRegistrationNo());
+            studentIdField.setEditable(false);
+        }
 
         JButton searchButton = new JButton("Search");
 
@@ -61,8 +71,9 @@ public class AttendanceViewPanel extends JPanel {
     private void searchAttendance() {
 
         try {
-            int studentId =
-                    Integer.parseInt(studentIdField.getText().trim());
+            int studentId = SessionManager.isUndergraduate()
+                    ? SessionManager.getCurrentStudentId()
+                    : Integer.parseInt(studentIdField.getText().trim());
 
             String courseCode =
                     courseCodeField.getText().trim();

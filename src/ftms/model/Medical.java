@@ -1,3 +1,4 @@
+
 package ftms.model;
 
 import java.time.LocalDate;
@@ -7,7 +8,8 @@ public class Medical {
     private int medicalId;
     private int studentId;
     private int toId;
-    private LocalDate medicalDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private LocalDate submittedDate;
     private String approvalStatus;
     private String document;
@@ -17,12 +19,14 @@ public class Medical {
     }
 
     public Medical(int medicalId, int studentId, int toId,
-                   LocalDate medicalDate, LocalDate submittedDate,
+                   LocalDate startDate, LocalDate endDate,
+                   LocalDate submittedDate,
                    String approvalStatus, String document) {
         this.medicalId = medicalId;
         this.studentId = studentId;
         this.toId = toId;
-        this.medicalDate = medicalDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.submittedDate = submittedDate;
         setApprovalStatus(approvalStatus);
         this.document = document;
@@ -52,12 +56,20 @@ public class Medical {
         this.toId = toId;
     }
 
-    public LocalDate getMedicalDate() {
-        return medicalDate;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setMedicalDate(LocalDate medicalDate) {
-        this.medicalDate = medicalDate;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public LocalDate getSubmittedDate() {

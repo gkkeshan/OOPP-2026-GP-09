@@ -35,4 +35,10 @@ public class MedicalService {
         Connection connection = DBConnection.getConnection();
         return medicalDAO.getAll(connection);
     }
+
+    // Translates the logged-in user's user_id into student_id,
+    // because the medical table references undergraduate.student_id.
+    public int getStudentIdByUserId(int userId){
+        return new ftms.dao.UserDAO().getStudentIdByUserId(userId);
+    }
 }

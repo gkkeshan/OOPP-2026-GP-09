@@ -7,7 +7,9 @@ public class Notice {
     private int admin_id;
     private String title;
     private String description;
+    private String target_audience;   // ALL, UNDERGRADUATE, LECTURER, TECHNICAL_OFFICER
     private Date date_posted;
+
 
     public Notice(int notice_id, int admin_id, String title, String description, Date date_posted) {
         this.notice_id = notice_id;
@@ -56,6 +58,9 @@ public class Notice {
     public void setDate_posted(Date date_posted) {
         this.date_posted = date_posted;
     }
+
+    public String getTarget_audience() { return target_audience; }
+    public void setTarget_audience(String target_audience) { this.target_audience = target_audience; }
 
     @Override
     public String toString() {
