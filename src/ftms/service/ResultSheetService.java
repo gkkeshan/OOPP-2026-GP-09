@@ -1,6 +1,7 @@
 package ftms.service;
 
 import ftms.dao.ResultDAO;
+import ftms.dao.UserDAO;
 import ftms.model.SemesterResult;
 
 import java.sql.SQLException;
@@ -9,6 +10,7 @@ import java.util.List;
 public class ResultSheetService {
     private final ResultDAO resultDAO;
     private final GradeService gradeService;
+    private final UserDAO userDAO;
 
     public ResultSheetService() {
         this(new ResultDAO(), new GradeService());
@@ -17,9 +19,18 @@ public class ResultSheetService {
     public ResultSheetService(ResultDAO resultDAO, GradeService gradeService) {
         this.resultDAO = resultDAO;
         this.gradeService = gradeService;
+        this.userDAO = new UserDAO();
     }
 
-    public List<SemesterResult> getResultsForStudent(String studentId) throws SQLException {
+    public List<SemesterResult> getResultsForStudent(String registrationNo) throws SQLException {
+        int studentId = userDAO.getStudentIdByRegistrationNo(registrationNo);
+        if (studentId == -1) {
+            throw new SQLException("Student not found with registration number: " + registrationNo);
+        }
+        return resultDAO.findByStudent(String.valueOf(studentId));
+    }
+
+    public List<SemesterResult> getResultsForStudentById(String studentId) throws SQLException {
         return resultDAO.findByStudent(requireStudentId(studentId));
     }
 

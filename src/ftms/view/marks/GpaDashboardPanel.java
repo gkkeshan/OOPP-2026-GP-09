@@ -31,7 +31,7 @@ public class GpaDashboardPanel extends JPanel {
 
         JPanel search = new JPanel(new FlowLayout(FlowLayout.LEFT));
         search.setBorder(BorderFactory.createTitledBorder("Student"));
-        search.add(new JLabel("Student ID:"));
+        search.add(new JLabel("Registration No:"));
         search.add(studentIdField);
         search.add(loadButton);
 
@@ -66,14 +66,14 @@ public class GpaDashboardPanel extends JPanel {
     }
 
     private void loadGpa() {
-        String studentId = SessionManager.isUndergraduate()
-                ? String.valueOf(SessionManager.getCurrentStudentId())
+        String registrationNo = SessionManager.isUndergraduate()
+                ? SessionManager.getCurrentRegistrationNo()
                 : studentIdField.getText().trim();
         loadButton.setEnabled(false);
         new SwingWorker<List<SemesterResult>, Void>() {
             @Override
             protected List<SemesterResult> doInBackground() throws SQLException {
-                return resultSheetService.getResultsForStudent(studentId);
+                return resultSheetService.getResultsForStudent(registrationNo);
             }
 
             @Override

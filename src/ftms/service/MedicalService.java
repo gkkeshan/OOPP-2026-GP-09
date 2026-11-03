@@ -3,6 +3,7 @@ package ftms.service;
 
 import ftms.config.DBConnection;
 import ftms.dao.MedicalDAO;
+import ftms.dao.UserDAO;
 import ftms.model.Medical;
 
 import java.sql.Connection;
@@ -12,6 +13,7 @@ import java.util.List;
 public class MedicalService {
 
     private MedicalDAO medicalDAO = new MedicalDAO();
+    private UserDAO userDAO = new UserDAO();
 
     public boolean addMedical(Medical medical) throws SQLException {
         Connection connection = DBConnection.getConnection();
@@ -27,6 +29,15 @@ public class MedicalService {
     }
 
     public List<Medical> getByStudent(int studentId) throws SQLException {
+        Connection connection = DBConnection.getConnection();
+        return medicalDAO.getByStudent(connection, studentId);
+    }
+
+    public List<Medical> getByStudent(String registrationNo) throws SQLException {
+        int studentId = userDAO.getStudentIdByRegistrationNo(registrationNo);
+        if (studentId == -1) {
+            throw new SQLException("Student not found with registration number: " + registrationNo);
+        }
         Connection connection = DBConnection.getConnection();
         return medicalDAO.getByStudent(connection, studentId);
     }

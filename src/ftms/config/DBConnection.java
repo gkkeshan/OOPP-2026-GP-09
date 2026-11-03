@@ -10,31 +10,20 @@ public class DBConnection {
     private static final String USER = "root";
     private static final String PASSWORD = "1234"; // Enter your MySQL root password here
 
-    private static Connection connection = null;
-
-    // Private constructor to prevent instantiation (Singleton Pattern)
+    // Private constructor to prevent instantiation
     private DBConnection() {}
 
-    public static Connection getConnection() {
+    public static Connection getConnection() throws SQLException {
         try {
-            // isValid(2) sends a real ping to MySQL. isClosed() only sees OUR closes,
-            // not a connection the server already dropped (e.g. after laptop sleep).
-            if (connection == null || connection.isClosed() || !connection.isValid(2)) {
-                if (connection != null) {
-                    try { connection.close(); } catch (SQLException ignored) { }
-                }
-                // Load MySQL JDBC Driver
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("Database Connected Successfully!");
-            }
+            // Load MySQL JDBC Driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("Database Connected Successfully!");
+            return connection;
         } catch (ClassNotFoundException e) {
             System.err.println("MySQL JDBC Driver not found in dependencies!");
             e.printStackTrace();
-        } catch (SQLException e) {
-            System.err.println("Failed to connect to database!");
-            e.printStackTrace();
+            throw new SQLException("MySQL JDBC Driver not found", e);
         }
-        return connection;
     }
 }
