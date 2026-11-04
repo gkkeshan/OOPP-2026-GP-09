@@ -65,22 +65,15 @@ public class AttendanceViewPanel extends JPanel {
 
         searchButton.addActionListener(e -> searchAttendance());
     }
-
     private void searchAttendance() {
 
         try {
-            String registrationNo = SessionManager.isUndergraduate()
-                    ? SessionManager.getCurrentRegistrationNo()
-                    : studentIdField.getText().trim();
+            int studentId = SessionManager.isUndergraduate()
+                    ? SessionManager.getCurrentStudentId()
+                    : Integer.parseInt(studentIdField.getText().trim());
 
             String courseCode =
                     courseCodeField.getText().trim();
-
-            if (registrationNo.isEmpty()) {
-                JOptionPane.showMessageDialog(
-                        this, "Please enter a registration number.");
-                return;
-            }
 
             if (courseCode.isEmpty()) {
                 JOptionPane.showMessageDialog(
@@ -90,7 +83,7 @@ public class AttendanceViewPanel extends JPanel {
 
             List<AttendanceRecord> records =
                     attendanceService.getAttendance(
-                            registrationNo, courseCode);
+                            studentId, courseCode);
 
             tableModel = new AttendanceTableModel(records);
             attendanceTable.setModel(tableModel);
@@ -100,10 +93,16 @@ public class AttendanceViewPanel extends JPanel {
                         this, "No attendance records found.");
             }
 
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                    this, "Please enter a valid Student ID.");
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(
                     this,
                     "Unable to load attendance: " + ex.getMessage());
         }
     }
+
+
 }

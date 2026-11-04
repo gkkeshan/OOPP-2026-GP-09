@@ -34,6 +34,11 @@ public class AttendanceReportService {
         int practicalTotal = 0;
 
         for (AttendanceRecord record : records) {
+            // Medically excused session (approved medical linked): excluded
+            // from the total, so it neither helps nor hurts the percentage.
+            if (record.getMedicalId() != null) {
+                continue;
+            }
 
             if ("Theory".equals(record.getSessionType())) {
                 theoryTotal++;
