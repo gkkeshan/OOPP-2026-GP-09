@@ -1,13 +1,19 @@
 package ftms.view.users.admin;
 
+import ftms.dao.BatchDAO;
+import ftms.dao.DepartmentDAO;
 import ftms.exception.DuplicateUserException;
+import ftms.model.Batch;
+import ftms.model.Department;
 import ftms.model.User;
 import ftms.service.UserService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserManagementPanel extends JPanel {
 
@@ -22,7 +28,7 @@ public class UserManagementPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         model = new DefaultTableModel(
-                new Object[]{"User_ID", "Name", "Email", "Role", "Contact"}, 0) {
+                new Object[]{"User_ID", "Name", "Email", "Role", "Contact","Batch"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
         };
@@ -74,24 +80,14 @@ public class UserManagementPanel extends JPanel {
     private void loadUsers() {
         try {
             model.setRowCount(0);
-            String selectedRole = (String) roleFilter.getSelectedItem();
-            String searchText = searchField.getText().trim().toLowerCase();
-
             for (User u : userService.getAllUsers()) {
-                // Role filter
-                if (!"All".equals(selectedRole) && !selectedRole.equals(u.getRole())) {
-                    continue;
+                String batch = "";
+                if (u instanceof ftms.model.Undergraduate) {
+                    batch = ((ftms.model.Undergraduate) u).getBatch();
+                    if (batch == null) batch = "";
                 }
-
-                // Search filter (name or email)
-                if (!searchText.isEmpty() &&
-                        !u.getUserName().toLowerCase().contains(searchText) &&
-                        !u.getEmail().toLowerCase().contains(searchText)) {
-                    continue;
-                }
-
                 model.addRow(new Object[]{u.getUserID(), u.getUserName(),
-                        u.getEmail(), u.getRole(), u.getContactNumber()});
+                        u.getEmail(), u.getRole(), u.getContactNumber(), batch});
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
@@ -115,32 +111,68 @@ public class UserManagementPanel extends JPanel {
         JLabel extraLabel = new JLabel("(not needed)");
         JTextField extra = new JTextField();
 
+        // Batch dropdown — used only when the role is UNDERGRADUATE
+        JComboBox<Batch> batchBox = new JComboBox<>();
+        Map<Integer, String> deptNames = new HashMap<>();
+        try {
+            for (Department d : new DepartmentDAO().findAll()) deptNames.put(d.getDepartmentId(), d.getDepartmentName());
+            for (Batch b : new BatchDAO().findAll()) batchBox.addItem(b);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Could not load batches: " + e.getMessage());
+        }
+        batchBox.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                                    int index, boolean sel, boolean focus) {
+                super.getListCellRendererComponent(list, value, index, sel, focus);
+                if (value instanceof Batch) {
+                    Batch b = (Batch) value;
+                    String dept = deptNames.get(b.getDepartmentId());
+                    setText(b.display() + (dept == null ? "" : " — " + dept));
+                }
+                return this;
+            }
+        });
+        JLabel batchLabel = new JLabel("Batch:");
+
         String[] roles = {"ADMIN", "LECTURER", "TECHNICAL_OFFICER", "UNDERGRADUATE"};
         JComboBox<String> roleBox = new JComboBox<>(roles);
-        roleBox.addActionListener(e -> {
+        Runnable updateRoleFields = () -> {
             String r = (String) roleBox.getSelectedItem();
+            boolean student = "UNDERGRADUATE".equals(r);
             if ("LECTURER".equals(r)) extraLabel.setText("Designation:");
             else if ("TECHNICAL_OFFICER".equals(r)) extraLabel.setText("Department ID:");
-            else if ("UNDERGRADUATE".equals(r)) extraLabel.setText("Registration No:");
+            else if (student) extraLabel.setText("Registration No:");
             else extraLabel.setText("(not needed)");
-        });
+            batchBox.setEnabled(student);      // batch only matters for students
+            batchLabel.setEnabled(student);
+        };
+        roleBox.addActionListener(e -> updateRoleFields.run());
+        updateRoleFields.run();   // apply initial state (ADMIN)
 
-        JPanel form = new JPanel(new GridLayout(6, 2, 8, 8));
+        JPanel form = new JPanel(new GridLayout(7, 2, 8, 8));
         form.add(new JLabel("Name:"));        form.add(name);
         form.add(new JLabel("Email:"));       form.add(email);
         form.add(new JLabel("Password:"));    form.add(password);
         form.add(new JLabel("Role:"));        form.add(roleBox);
         form.add(new JLabel("Contact No:"));  form.add(contact);
         form.add(extraLabel);                 form.add(extra);
+        form.add(batchLabel);                 form.add(batchBox);
 
         while (true) {
             int choice = JOptionPane.showConfirmDialog(this, form, "Create User",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (choice != JOptionPane.OK_OPTION) return;
             try {
+                String role = (String) roleBox.getSelectedItem();
+                boolean student = "UNDERGRADUATE".equals(role);
+                if (student && batchBox.getSelectedItem() == null) {
+                    JOptionPane.showMessageDialog(this, "Select a batch for the student.");
+                    continue;   // dialog stays open
+                }
+                Batch selectedBatch = student ? (Batch) batchBox.getSelectedItem() : null;
                 boolean ok = userService.createUser(name.getText(), email.getText(),
-                        password.getText(), (String) roleBox.getSelectedItem(),
-                        contact.getText(), extra.getText());
+                        password.getText(), role,
+                        contact.getText(), extra.getText(), selectedBatch);
                 if (ok) {
                     JOptionPane.showMessageDialog(this, "User created!");
                     loadUsers();

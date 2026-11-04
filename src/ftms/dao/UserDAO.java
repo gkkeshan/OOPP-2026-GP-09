@@ -6,7 +6,9 @@ import ftms.model.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserDAO {
     public User getUserByEmail(String email) {
@@ -41,7 +43,35 @@ public class UserDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        enrichUndergraduates(users);
         return users;
+    }
+
+    // Fills registration_no / batch / academic_year into the Undergraduate objects
+// so the Users table can show each student's batch (one extra query, no N+1).
+    private void enrichUndergraduates(List<User> users) {
+        Map<Integer, Undergraduate> byUserId = new HashMap<>();
+        for (User u : users) {
+            if (u instanceof Undergraduate) byUserId.put(u.getUserID(), (Undergraduate) u);
+        }
+        if (byUserId.isEmpty()) return;
+        String sql = "SELECT user_id, registration_no, batch, academic_year, batch_id FROM undergraduate";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Undergraduate ug = byUserId.get(rs.getInt("user_id"));
+                if (ug != null) {
+                    ug.setRegistration_no(rs.getString("registration_no"));
+                    ug.setBatch(rs.getString("batch"));
+                    ug.setAcademic_year(rs.getString("academic_year"));
+                    int bid = rs.getInt("batch_id");
+                    ug.setBatch_id(rs.wasNull() ? null : String.valueOf(bid));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Could not load student batch info: " + e.getMessage());
+        }
     }
 
     public boolean updateContactNumber(int userId, String newContactNumber){
@@ -139,7 +169,7 @@ public class UserDAO {
     // Creates a user row AND its role row in ONE transaction.
 // extra = designation (LECTURER) / department_id (TECHNICAL_OFFICER) / registration_no (UNDERGRADUATE)
     public int insertUser(String userName, String email, String hashedPassword,
-                          String role, String contactNo, String extra)
+                          String role, String contactNo, String extra,Batch batch)
             throws DuplicateUserException {
 
         String insertUserSql = "INSERT INTO user (user_name, email, password, role, contact_no, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
@@ -165,7 +195,7 @@ public class UserDAO {
                 }
                 if (newUserId == -1) throw new SQLException("Could not read the new user id.");
 
-                insertRoleRow(conn, role, newUserId, extra);
+                insertRoleRow(conn, role, newUserId, extra, batch);
                 conn.commit();
             } catch (Exception e) {
                 conn.rollback();
@@ -184,7 +214,7 @@ public class UserDAO {
     }
 
     // Inserts the matching row in the role table.
-    private void insertRoleRow(Connection conn, String role, int userId, String extra) throws SQLException {
+    private void insertRoleRow(Connection conn, String role, int userId, String extra,Batch batch) throws SQLException {
         switch (role.toUpperCase()) {
             case "LECTURER":
                 try (PreparedStatement r = conn.prepareStatement(
@@ -204,9 +234,18 @@ public class UserDAO {
                 break;
             case "UNDERGRADUATE":
                 try (PreparedStatement r = conn.prepareStatement(
-                        "INSERT INTO undergraduate (user_id, registration_no) VALUES (?, ?)")) {
+                        "INSERT INTO undergraduate (user_id, registration_no, batch, academic_year, batch_id) VALUES (?, ?, ?, ?, ?)")) {
                     r.setInt(1, userId);
                     r.setString(2, extra == null ? "" : extra.trim());
+                    if (batch != null) {          // copy name/year so lists can show them without a JOIN
+                        r.setString(3, batch.getBatchName());
+                        r.setString(4, batch.getAcademicYear());
+                        r.setInt(5, batch.getBatchId());
+                    } else {
+                        r.setNull(3, Types.VARCHAR);
+                        r.setNull(4, Types.VARCHAR);
+                        r.setNull(5, Types.INTEGER);
+                    }
                     r.executeUpdate();
                 }
                 break;
