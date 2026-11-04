@@ -50,7 +50,7 @@ public class ResultsSheetPanel extends JPanel {
 
     private void loadResults() {
         String studentId = SessionManager.isUndergraduate()
-                ? String.valueOf(SessionManager.getCurrentStudentId())
+                ? SessionManager.getCurrentRegistrationNo()
                 : studentIdField.getText().trim();
         loadButton.setEnabled(false);
         new SwingWorker<List<SemesterResult>, Void>() {

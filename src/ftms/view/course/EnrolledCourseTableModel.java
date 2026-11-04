@@ -38,4 +38,8 @@ public class EnrolledCourseTableModel extends AbstractTableModel {
             default: return null;
         }
     }
+
+    public EnrolledCourse getCourseAt(int row) {
+        return rows.get(row);
+    }
 }

@@ -272,7 +272,7 @@ CREATE TABLE medical (
                          medical_id      INT          NOT NULL AUTO_INCREMENT,
                          student_id      INT          NOT NULL,
                          to_id           INT          NOT NULL,
-                         medical_date    DATE         NOT NULL,
+                         medical_date    DATE         NULL,
                          start_date      DATE         NULL,
                          end_date        DATE         NULL,
                          submitted_date  DATE         NOT NULL,
@@ -583,9 +583,10 @@ INSERT INTO mark (mark_id, evaluation_id, student_id, marks, grade) VALUES
                                                                         (35, 7, 5, 25, 'E');
 
 
-INSERT INTO medical (medical_id, student_id, to_id, medical_date, start_date, end_date, submitted_date, approval_status, document) VALUES
-                                                                                                                                       (1, 5, 1, '2026-10-12', '2026-10-12', '2026-10-13', '2026-10-14', 'Approved', 'medicals/m005clinic.pdf'),
-                                                                                                                                       (2, 7, 1, '2026-10-13', '2026-10-13', '2026-10-13', '2026-10-14', 'Pending',  'medicals/m007clinic.pdf');
+INSERT INTO medical (medical_id, student_id, to_id, start_date, end_date, submitted_date, approval_status, document) VALUES
+                                                                                                                         (1, 5, 1, '2026-10-12', '2026-10-13', '2026-10-14', 'Approved', 'medicals/m005clinic.pdf'),
+                                                                                                                         (2, 7, 1, '2026-10-13', '2026-10-13', '2026-10-14', 'Pending',  'medicals/m007clinic.pdf'),
+                                                                                                                         (3, 7, 1, '2026-10-26', '2026-10-26', '2026-10-27', 'Approved', 'medicals/m007clinic2.pdf');
 
 
 INSERT INTO attendance_record (attendance_id, course_code, student_id, session_no, date, session_type, status, to_id, medical_id) VALUES
@@ -618,4 +619,17 @@ INSERT INTO attendance_record (attendance_id, course_code, student_id, session_n
                                                                                                                                       (27, 'ICT2132', 2, 3, '2026-10-20', 'Practical', 'Absent',  1, NULL),
                                                                                                                                       (28, 'ICT2132', 3, 3, '2026-10-20', 'Practical', 'Absent',  1, NULL),
                                                                                                                                       (29, 'ICT2132', 4, 3, '2026-10-20', 'Practical', 'Present', 1, NULL),
-                                                                                                                                      (30, 'ICT2132', 5, 3, '2026-10-20', 'Practical', 'Present', 1, NULL);
+                                                                                                                                      (30, 'ICT2132', 5, 3, '2026-10-20', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      -- Student 6: Exactly 80% attendance (4 out of 5 sessions)
+                                                                                                                                      (31, 'ICT2132', 6, 1, '2026-10-05', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (32, 'ICT2132', 6, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (33, 'ICT2132', 6, 3, '2026-10-19', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (34, 'ICT2132', 6, 4, '2026-10-26', 'Theory',    'Absent',  1, NULL),
+                                                                                                                                      (35, 'ICT2132', 6, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      -- Student 7: >80% attendance with medicals (5 out of 6 = 83.3%)
+                                                                                                                                      (36, 'ICT2132', 7, 1, '2026-10-05', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (37, 'ICT2132', 7, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (38, 'ICT2132', 7, 3, '2026-10-19', 'Theory',    'Present', 1, NULL),
+                                                                                                                                      (39, 'ICT2132', 7, 4, '2026-10-26', 'Theory',    'Absent',  1, 3),
+                                                                                                                                      (40, 'ICT2132', 7, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+                                                                                                                                      (41, 'ICT2132', 7, 2, '2026-10-13', 'Practical', 'Present', 1, NULL);

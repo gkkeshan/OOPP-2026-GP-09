@@ -98,7 +98,7 @@ public class MedicalRecordPanel extends JPanel {
         form.setPreferredSize(new Dimension(400, 230));
         form.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        form.add(new JLabel("Student ID:"));
+        form.add(new JLabel("Registration No:"));
         form.add(student);
 
         form.add(new JLabel("Start Date:"));
@@ -118,7 +118,13 @@ public class MedicalRecordPanel extends JPanel {
         if (result != JOptionPane.OK_OPTION) return;
 
         try {
-            int studentId = Integer.parseInt(student.getText());
+            String registrationNo = student.getText().trim();
+            int studentId = new ftms.dao.UserDAO().getStudentIdByRegistrationNo(registrationNo);
+            if (studentId == -1) {
+                JOptionPane.showMessageDialog(this,
+                        "Student not found with registration number: " + registrationNo);
+                return;
+            }
 
             LocalDate startDate = LocalDate.parse(
                     start.getText().replaceAll("-(\\d)(-|$)", "-0$1$2"));
@@ -154,9 +160,9 @@ public class MedicalRecordPanel extends JPanel {
 
     private void searchMedical() {
         try {
-            int id = isUG ? SessionManager.getCurrentStudentId()
-                    : Integer.parseInt(studentIdField.getText());
-            loadMedicals(service.getByStudent(id));
+            String registrationNo = isUG ? SessionManager.getCurrentRegistrationNo()
+                    : studentIdField.getText().trim();
+            loadMedicals(service.getByStudent(registrationNo));
         } catch (Exception e) {
             showError(e);
         }
