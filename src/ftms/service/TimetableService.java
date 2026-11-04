@@ -1,10 +1,12 @@
 package ftms.service;
 
 import ftms.dao.BatchDAO;
+import ftms.dao.DepartmentDAO;
 import ftms.dao.TimetableDAO;
 import ftms.dao.VenueDAO;
 import ftms.exception.TimetableConflictException;
 import ftms.model.Batch;
+import ftms.model.Department;
 import ftms.model.Timetable;
 import ftms.model.Venue;
 
@@ -16,6 +18,7 @@ public class TimetableService {
     private TimetableDAO timetableDAO = new TimetableDAO();
     private VenueDAO venueDAO = new VenueDAO();
     private BatchDAO batchDAO = new BatchDAO();
+    private DepartmentDAO departmentDAO = new DepartmentDAO();
 
 
     public List<Timetable> getAllSessions() {
@@ -44,6 +47,12 @@ public class TimetableService {
 
     public List<Venue> getVenues() {
         return venueDAO.findAll();
+    }
+
+    /** Department name of a batch, so the batch combo boxes can show it. */
+    public String getDepartmentName(int departmentId) {
+        Department d = departmentDAO.findById(departmentId);
+        return d == null ? "Unknown department" : d.getDepartmentName();
     }
 
     public List<Batch> getBatches() {

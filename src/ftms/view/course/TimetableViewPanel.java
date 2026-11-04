@@ -61,7 +61,7 @@ public class TimetableViewPanel extends JPanel {
         add(southPanel, BorderLayout.SOUTH);
 
 
-        cmbBatch.setPrototypeDisplayValue("9999 - Batch 00 (2024/2025)");
+        cmbBatch.setPrototypeDisplayValue("9999 - Batch 00 (2024/2025) - Information and Communication Technology");
 
         loadBatches();
         showAll();
@@ -84,7 +84,8 @@ public class TimetableViewPanel extends JPanel {
             cmbBatch.addItem("All Batches");
             batchList = timetableService.getBatches();
             for (Batch b : batchList) {
-                cmbBatch.addItem(b.getBatchId() + " - " + b.display());
+                cmbBatch.addItem(b.getBatchId() + " - " + b.display() + " - "
+                        + timetableService.getDepartmentName(b.getDepartmentId()));
             }
         } catch (RuntimeException e) {
             lblInfo.setText("Could not load batches: " + errorMessage(e));

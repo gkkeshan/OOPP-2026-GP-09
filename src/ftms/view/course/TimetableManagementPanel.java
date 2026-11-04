@@ -118,7 +118,8 @@ public class TimetableManagementPanel extends JPanel {
         cmbBatch.removeAllItems();
         batchList = timetableService.getBatches();
         for (Batch b : batchList) {
-            cmbBatch.addItem(b.getBatchId() + " - " + b.display());
+            cmbBatch.addItem(b.getBatchId() + " - " + b.display() + " - "
+                    + timetableService.getDepartmentName(b.getDepartmentId()));
         }
     }
 
