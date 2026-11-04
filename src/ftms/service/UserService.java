@@ -3,6 +3,7 @@ package ftms.service;
 import ftms.dao.UserDAO;
 import ftms.exception.DatabaseException;
 import ftms.exception.DuplicateUserException;
+import ftms.model.Batch;
 import ftms.model.User;
 import ftms.util.PasswordHasher;
 
@@ -20,15 +21,21 @@ public class UserService {
     }
 
     public boolean createUser(String userName, String email, String rawPassword,
-                              String role, String contactNo, String extra)
+                              String role, String contactNo, String extra, Batch batch)
             throws DatabaseException, DuplicateUserException {
         if (userName.isBlank() || email.isBlank() || rawPassword.isBlank()) {
             throw new DatabaseException("Name, email and password are required.");
         }
+        if ("UNDERGRADUATE".equals(role) && batch == null) {
+            throw new DatabaseException("A batch must be selected for a student.");
+        }
+        if (!"UNDERGRADUATE".equals(role)) {
+            batch = null;   // batch only applies to students
+        }
         try {
             return userDAO.insertUser(userName.trim(), email.trim(),
                     PasswordHasher.hashPassword(rawPassword), role,
-                    contactNo == null ? null : contactNo.trim(), extra) > 0;
+                    contactNo == null ? null : contactNo.trim(), extra, batch) > 0;
         } catch (DuplicateUserException e) {
             throw e;
         } catch (Exception e) {
