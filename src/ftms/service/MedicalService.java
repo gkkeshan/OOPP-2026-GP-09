@@ -69,4 +69,12 @@ public class MedicalService {
     public int getStudentIdByUserId(int userId){
         return new ftms.dao.UserDAO().getStudentIdByUserId(userId);
     }
+
+
+    // Resolves a registration number like "TG2101" to the internal student_id.
+    // Returns -1 when no student has that registration number.
+    public int findStudentIdByRegistrationNo(String regNo) throws SQLException {
+        Connection connection = DBConnection.getConnection();
+        return medicalDAO.findStudentIdByRegistrationNo(connection, regNo);
+    }
 }

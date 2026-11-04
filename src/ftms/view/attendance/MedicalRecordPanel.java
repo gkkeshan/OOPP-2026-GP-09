@@ -118,11 +118,12 @@ public class MedicalRecordPanel extends JPanel {
         if (result != JOptionPane.OK_OPTION) return;
 
         try {
-            String registrationNo = student.getText().trim();
-            int studentId = new ftms.dao.UserDAO().getStudentIdByRegistrationNo(registrationNo);
+            String input = student.getText().trim();
+
+            int studentId = resolveStudentId(input);
             if (studentId == -1) {
                 JOptionPane.showMessageDialog(this,
-                        "Student not found with registration number: " + registrationNo);
+                        "No student found with registration no: " + input);
                 return;
             }
 
@@ -160,11 +161,46 @@ public class MedicalRecordPanel extends JPanel {
 
     private void searchMedical() {
         try {
-            String registrationNo = isUG ? SessionManager.getCurrentRegistrationNo()
-                    : studentIdField.getText().trim();
-            loadMedicals(service.getByStudent(registrationNo));
+            List<Medical> records;
+
+            if (isUG) {
+                records = service.getByStudent(
+                        SessionManager.getCurrentStudentId());
+            } else {
+                String input = studentIdField.getText().trim();
+
+                if (input.isEmpty()) {          // nothing typed -> show all
+                    loadMedicals(null);
+                    return;
+                }
+
+                int studentId = resolveStudentId(input);
+                if (studentId == -1) {
+                    JOptionPane.showMessageDialog(this,
+                            "No student found with registration no: " + input);
+                    return;
+                }
+
+                records = service.getByStudent(studentId);
+            }
+
+            loadMedicals(records);
         } catch (Exception e) {
             showError(e);
+        }
+    }
+
+    // Accepts either the registration number (e.g. TG2101) or the numeric
+    // student id, so old demo data entered as plain numbers still works.
+    private int resolveStudentId(String input) {
+        if (input.matches("\\d+")) {
+            return Integer.parseInt(input);
+        }
+        try {
+            return service.findStudentIdByRegistrationNo(input);
+        } catch (Exception e) {
+            showError(e);
+            return -1;
         }
     }
 
