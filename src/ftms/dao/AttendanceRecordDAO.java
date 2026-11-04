@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,9 +84,9 @@ public class AttendanceRecordDAO {
     public List<AttendanceSummary> getBatchSummaries(String courseCode) throws SQLException {
         String sql = "SELECT student_id, "
                 + "SUM(CASE WHEN session_type='Theory' AND status='Present' THEN 1 ELSE 0 END) AS th_present, "
-                + "SUM(CASE WHEN session_type='Theory' THEN 1 ELSE 0 END) AS th_total, "
+                + "SUM(CASE WHEN session_type='Theory' AND medical_id IS NULL THEN 1 ELSE 0 END) AS th_total, "
                 + "SUM(CASE WHEN session_type='Practical' AND status='Present' THEN 1 ELSE 0 END) AS pr_present, "
-                + "SUM(CASE WHEN session_type='Practical' THEN 1 ELSE 0 END) AS pr_total "
+                + "SUM(CASE WHEN session_type='Practical' AND medical_id IS NULL THEN 1 ELSE 0 END) AS pr_total "
                 + "FROM attendance_record WHERE course_code = ? "
                 + "GROUP BY student_id ORDER BY student_id";
         List<AttendanceSummary> summaries = new ArrayList<>();
@@ -102,5 +103,31 @@ public class AttendanceRecordDAO {
             }
         }
         return summaries;
+    }
+    // Links a student's ABSENT sessions inside the medical's date range to the
+// medical record (attendance_record.medical_id), so that reports excuse
+// them. When the medical is NOT approved, the link is removed again.
+    public int applyMedical(int studentId, int medicalId,
+                            LocalDate start, LocalDate end, boolean approved)
+            throws SQLException {
+        if (approved && (start == null || end == null)) {
+            return 0;   // cannot excuse without a date range
+        }
+        String sql = approved
+                ? "UPDATE attendance_record SET medical_id = ? "
+                + "WHERE student_id = ? AND status = 'Absent' AND date BETWEEN ? AND ?"
+                : "UPDATE attendance_record SET medical_id = NULL WHERE medical_id = ?";
+        try (Connection c = DBConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            if (approved) {
+                ps.setInt(1, medicalId);
+                ps.setInt(2, studentId);
+                ps.setDate(3, Date.valueOf(start));
+                ps.setDate(4, Date.valueOf(end));
+            } else {
+                ps.setInt(1, medicalId);
+            }
+            return ps.executeUpdate();
+        }
     }
 }

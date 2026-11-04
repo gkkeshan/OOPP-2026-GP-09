@@ -100,4 +100,25 @@ public class MedicalDAO {
 
         return list;
     }
+    // Loads one medical record (used after a status change so the service can
+// link/unlink the affected attendance records).
+    public Medical findById(Connection con, int medicalId) throws SQLException {
+        String sql = "SELECT * FROM medical WHERE medical_id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, medicalId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return new Medical(
+                        rs.getInt("medical_id"),
+                        rs.getInt("student_id"),
+                        rs.getInt("to_id"),
+                        rs.getDate("start_date").toLocalDate(),
+                        rs.getDate("end_date").toLocalDate(),
+                        rs.getDate("submitted_date").toLocalDate(),
+                        rs.getString("approval_status"),
+                        rs.getString("document")
+                );
+            }
+        }
+    }
 }

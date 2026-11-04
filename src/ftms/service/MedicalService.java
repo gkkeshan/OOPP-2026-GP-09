@@ -2,6 +2,7 @@
 package ftms.service;
 
 import ftms.config.DBConnection;
+import ftms.dao.AttendanceRecordDAO;
 import ftms.dao.MedicalDAO;
 import ftms.dao.UserDAO;
 import ftms.model.Medical;
@@ -13,7 +14,10 @@ import java.util.List;
 public class MedicalService {
 
     private MedicalDAO medicalDAO = new MedicalDAO();
+    private AttendanceRecordDAO attendanceRecordDAO = new AttendanceRecordDAO();
     private UserDAO userDAO = new UserDAO();
+
+
 
     public boolean addMedical(Medical medical) throws SQLException {
         Connection connection = DBConnection.getConnection();
@@ -24,8 +28,21 @@ public class MedicalService {
             throws SQLException {
 
         Connection connection = DBConnection.getConnection();
+        boolean ok = medicalDAO.updateStatus(connection, medicalId, status);
+        // Approved medical -> the student's ABSENT sessions inside the medical's
+        // date range are linked to it (attendance_record.medical_id), so reports
+        // and eligibility excuse them. Pending/Rejected removes the link again.
+        if (ok) {
+            Medical medical = medicalDAO.findById(connection, medicalId);
+            if (medical != null) {
+                attendanceRecordDAO.applyMedical(
+                        medical.getStudentId(), medicalId,
+                        medical.getStartDate(), medical.getEndDate(),
+                        "Approved".equals(status));
+            }
+        }
 
-        return medicalDAO.updateStatus(connection, medicalId, status);
+        return ok;
     }
 
     public List<Medical> getByStudent(int studentId) throws SQLException {
