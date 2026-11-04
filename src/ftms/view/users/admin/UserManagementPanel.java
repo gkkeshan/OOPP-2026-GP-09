@@ -9,8 +9,11 @@ import ftms.model.User;
 import ftms.service.UserService;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,36 +23,39 @@ public class UserManagementPanel extends JPanel {
     private final UserService userService = new UserService();
     private JTable table;
     private DefaultTableModel model;
-    private JComboBox<String> roleFilter;
+
+    // Filter & Search state
+    private JComboBox<String> roleFilterBox;
     private JTextField searchField;
+    private List<User> allUsers = new ArrayList<>();   // master list straight from the DB
 
     public UserManagementPanel() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // ---------- Filter & Search (top) ----------
+        roleFilterBox = new JComboBox<>(
+                new String[]{"All", "ADMIN", "LECTURER", "TECHNICAL_OFFICER", "UNDERGRADUATE"});
+        searchField = new JTextField(18);
+
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
+        filterPanel.setBorder(BorderFactory.createTitledBorder("Filter & Search"));
+        filterPanel.add(new JLabel("Role:"));
+        filterPanel.add(roleFilterBox);
+        filterPanel.add(new JLabel("Search:"));
+        filterPanel.add(searchField);
+        add(filterPanel, BorderLayout.NORTH);
+
+        // ---------- Users table (center) ----------
         model = new DefaultTableModel(
-                new Object[]{"User_ID", "Name", "Email", "Role", "Contact","Batch"}, 0) {
+                new Object[]{"User_ID", "Name", "Email", "Role", "Contact", "Batch"}, 0) {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
         };
         table = new JTable(model);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // Filter and Search Panel
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        filterPanel.setBorder(BorderFactory.createTitledBorder("Filter & Search"));
-
-        filterPanel.add(new JLabel("Role:"));
-        String[] roles = {"All", "ADMIN", "LECTURER", "TECHNICAL_OFFICER", "UNDERGRADUATE"};
-        roleFilter = new JComboBox<>(roles);
-        filterPanel.add(roleFilter);
-
-        filterPanel.add(new JLabel("Search:"));
-        searchField = new JTextField(20);
-        filterPanel.add(searchField);
-
-        add(filterPanel, BorderLayout.NORTH);
-
+        // ---------- Buttons (bottom) ----------
         JButton refresh = new JButton("Refresh");
         JButton create = new JButton("Create User");
         JButton edit = new JButton("Edit Selected");
@@ -70,27 +76,47 @@ public class UserManagementPanel extends JPanel {
         delete.addActionListener(e -> deleteSelected());
         resetPw.addActionListener(e -> resetPassword());
 
-        // Add listeners for filter and search
-        roleFilter.addActionListener(e -> loadUsers());
-        searchField.addActionListener(e -> loadUsers());
+        // Any change in the filter UI immediately re-applies the filter
+        roleFilterBox.addActionListener(e -> applyFilter());
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e)  { applyFilter(); }
+            @Override public void removeUpdate(DocumentEvent e)  { applyFilter(); }
+            @Override public void changedUpdate(DocumentEvent e) { applyFilter(); }
+        });
 
         loadUsers();
     }
 
+    // Loads ALL users once from the DB into the master list, then filters locally.
     private void loadUsers() {
         try {
-            model.setRowCount(0);
-            for (User u : userService.getAllUsers()) {
-                String batch = "";
-                if (u instanceof ftms.model.Undergraduate) {
-                    batch = ((ftms.model.Undergraduate) u).getBatch();
-                    if (batch == null) batch = "";
-                }
-                model.addRow(new Object[]{u.getUserID(), u.getUserName(),
-                        u.getEmail(), u.getRole(), u.getContactNumber(), batch});
-            }
+            allUsers = userService.getAllUsers();
+            applyFilter();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading users: " + e.getMessage());
+        }
+    }
+
+    // Fills the table with only the users matching the selected role + search text.
+    private void applyFilter() {
+        String role = (String) roleFilterBox.getSelectedItem();
+        String q = searchField.getText().trim().toLowerCase();
+
+        model.setRowCount(0);
+        for (User u : allUsers) {
+            boolean roleOk = "All".equals(role) || role.equals(u.getRole());
+            boolean textOk = q.isEmpty()
+                    || u.getUserName().toLowerCase().contains(q)
+                    || u.getEmail().toLowerCase().contains(q);
+            if (!roleOk || !textOk) continue;
+
+            String batch = "";
+            if (u instanceof ftms.model.Undergraduate) {
+                batch = ((ftms.model.Undergraduate) u).getBatch();
+                if (batch == null) batch = "";
+            }
+            model.addRow(new Object[]{u.getUserID(), u.getUserName(),
+                    u.getEmail(), u.getRole(), u.getContactNumber(), batch});
         }
     }
 
