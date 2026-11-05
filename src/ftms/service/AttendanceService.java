@@ -34,6 +34,14 @@ public class AttendanceService {
                 connection, studentId, courseCode);
     }
 
+    // Resolves a registration number (e.g. TG2101) to the internal student_id
+    // so staff can search attendance by registration number. -1 if not found.
+    public int findStudentIdByRegistrationNo(String regNo) throws SQLException {
+        Connection connection = DBConnection.getConnection();
+        return new ftms.dao.MedicalDAO()
+                .findStudentIdByRegistrationNo(connection, regNo);
+    }
+
     // Save a session and create attendance records for enrolled students.
     public int addSession(String courseCode, int sessionNo,
                           LocalDate date, String sessionType, int toId)
