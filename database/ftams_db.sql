@@ -38,6 +38,7 @@ CREATE TABLE user (
                       password    VARCHAR(255)   NOT NULL,
                       role        VARCHAR(30)    NOT NULL,
                       contact_no  VARCHAR(15)    NULL,
+                      nic         VARCHAR(12)    NULL UNIQUE,
                       profile_picture VARCHAR(255) NULL,
                       CONSTRAINT pk_user PRIMARY KEY (user_id),
                       CONSTRAINT uq_user_email UNIQUE (email)
@@ -361,46 +362,47 @@ INSERT INTO department (department_id, department_name) VALUES
                                                             (4, 'Food Science and Technology');
 
 
-INSERT INTO user (user_id, user_name, email, password, role, contact_no) VALUES
-    (1, 'System Admin', 'admin@fot.ruhuna.lk', 'admin123', 'ADMIN', '0710000001');
+-- Synthetic NIC values for local testing only; these do not identify real people.
+INSERT INTO user (user_id, user_name, email, password, role, contact_no, nic) VALUES
+    (1, 'System Admin', 'admin@fot.ruhuna.lk', 'admin123', 'ADMIN', '0710000001', '198001000001');
 
 
-INSERT INTO user (user_id, user_name, email, password, role, contact_no) VALUES
-                                                                             (11, 'Dr. K. Perera',      'kperera@fot.ruhuna.lk',    'lect123', 'LECTURER', '0710000011'),
-                                                                             (12, 'Mr. S. Bandara',      'sbandara@fot.ruhuna.lk',  'lect123', 'LECTURER', '0710000012'),
-                                                                             (13, 'Mrs. N. Silva',       'nsilva@fot.ruhuna.lk',    'lect123', 'LECTURER', '0710000013'),
-                                                                             (14, 'Dr. R. Fernando',    'rfernando@fot.ruhuna.lk', 'lect123', 'LECTURER', '0710000014'),
-                                                                             (15, 'Mr. T. Jayasinghe',  'tjayas@fot.ruhuna.lk',    'lect123', 'LECTURER', '0710000015');
+INSERT INTO user (user_id, user_name, email, password, role, contact_no, nic) VALUES
+    (11, 'Dr. K. Perera',       'kperera@fot.ruhuna.lk',    'lect123', 'LECTURER', '0710000011', '197501000011'),
+    (12, 'Mr. S. Bandara',      'sbandara@fot.ruhuna.lk',   'lect123', 'LECTURER', '0710000012', '197502000012'),
+    (13, 'Mrs. N. Silva',       'nsilva@fot.ruhuna.lk',     'lect123', 'LECTURER', '0710000013', '197503000013'),
+    (14, 'Dr. R. Fernando',     'rfernando@fot.ruhuna.lk',  'lect123', 'LECTURER', '0710000014', '197504000014'),
+    (15, 'Mr. T. Jayasinghe',   'tjayas@fot.ruhuna.lk',     'lect123', 'LECTURER', '0710000015', '197505000015');
 
 
-INSERT INTO user (user_id, user_name, email, password, role, contact_no) VALUES
-                                                                             (21, 'Mr. A. Wickrama',  'awick@fot.ruhuna.lk',  'to123', 'TECHNICAL_OFFICER', '0710000021'),
-                                                                             (22, 'Mrs. D. Rathnayake','drath@fot.ruhuna.lk', 'to123', 'TECHNICAL_OFFICER', '0710000022'),
-                                                                             (23, 'Mr. P. Kumara',    'pkumara@fot.ruhuna.lk','to123', 'TECHNICAL_OFFICER', '0710000023'),
-                                                                             (24, 'Ms. H. Gunasekara','hguna@fot.ruhuna.lk',  'to123', 'TECHNICAL_OFFICER', '0710000024');
+INSERT INTO user (user_id, user_name, email, password, role, contact_no, nic) VALUES
+    (21, 'Mr. A. Wickrama',    'awick@fot.ruhuna.lk',  'to123', 'TECHNICAL_OFFICER', '0710000021', '198001000021'),
+    (22, 'Mrs. D. Rathnayake', 'drath@fot.ruhuna.lk',  'to123', 'TECHNICAL_OFFICER', '0710000022', '198002000022'),
+    (23, 'Mr. P. Kumara',      'pkumara@fot.ruhuna.lk','to123', 'TECHNICAL_OFFICER', '0710000023', '198003000023'),
+    (24, 'Ms. H. Gunasekara',  'hguna@fot.ruhuna.lk',  'to123', 'TECHNICAL_OFFICER', '0710000024', '198004000024');
 
 
-INSERT INTO user (user_id, user_name, email, password, role, contact_no) VALUES
-                                                                             (31, 'Nadula Perera',      'tg2101@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000001'),
-                                                                             (32, 'Kasun Silva',        'tg2102@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000002'),
-                                                                             (33, 'Amaya Fernando',     'tg2103@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000003'),
-                                                                             (34, 'Dinuka Jayawardena','tg2104@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000004'),
-                                                                             (35, 'Sachini Gunawardena','tg2105@std.ruhuna.lk','ug123', 'UNDERGRADUATE', '0750000005'),
-                                                                             (36, 'Tharindu Wickramasinghe','tg2106@std.ruhuna.lk','ug123','UNDERGRADUATE','0750000006'),
-                                                                             (37, 'Hasini Madushani',   'tg2107@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000007'),
-                                                                             (38, 'Nuwan Chathuranga', 'tg2108@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000008'),
-                                                                             (39, 'Ishara Sandamali',   'tg2109@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000009'),
-                                                                             (40, 'Chamod Nimsara',     'tg2110@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000010'),
-                                                                             (41, 'Rashmi Dissanayake','tg2111@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000011'),
-                                                                             (42, 'Gayan Liyanage',     'tg2112@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000012'),
-                                                                             (43, 'Nethmi Awanthi',     'tg2113@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000013'),
-                                                                             (44, 'Sahan Rathnasiri',   'tg2114@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000014'),
-                                                                             (45, 'Dulanji Hettiarachchi','tg2115@std.ruhuna.lk','ug123','UNDERGRADUATE', '0750000015'),
-                                                                             (46, 'Milan Tharaka',      'tg2116@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000016'),
-                                                                             (47, 'Oshadi Kavisha',     'tg2117@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000017'),
-                                                                             (48, 'Lahiru Maduranga',   'tg2118@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000018'),
-                                                                             (49, 'Vimukthi Prabhashana','tg2119@std.ruhuna.lk','ug123','UNDERGRADUATE', '0750000019'),
-                                                                             (50, 'Sanduni Hansika',   'tg2120@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000020');
+INSERT INTO user (user_id, user_name, email, password, role, contact_no, nic) VALUES
+    (31, 'Nadula Perera',         'tg2101@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000001', '200401000031'),
+    (32, 'Kasun Silva',           'tg2102@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000002', '200402000032'),
+    (33, 'Amaya Fernando',        'tg2103@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000003', '200403000033'),
+    (34, 'Dinuka Jayawardena',    'tg2104@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000004', '200404000034'),
+    (35, 'Sachini Gunawardena',   'tg2105@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000005', '200405000035'),
+    (36, 'Tharindu Wickramasinghe','tg2106@std.ruhuna.lk','ug123', 'UNDERGRADUATE', '0750000006', '200406000036'),
+    (37, 'Hasini Madushani',      'tg2107@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000007', '200407000037'),
+    (38, 'Nuwan Chathuranga',     'tg2108@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000008', '200408000038'),
+    (39, 'Ishara Sandamali',      'tg2109@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000009', '200409000039'),
+    (40, 'Chamod Nimsara',        'tg2110@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000010', '200410000040'),
+    (41, 'Rashmi Dissanayake',    'tg2111@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000011', '200411000041'),
+    (42, 'Gayan Liyanage',        'tg2112@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000012', '200412000042'),
+    (43, 'Nethmi Awanthi',        'tg2113@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000013', '200413000043'),
+    (44, 'Sahan Rathnasiri',      'tg2114@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000014', '200414000044'),
+    (45, 'Dulanji Hettiarachchi', 'tg2115@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000015', '200415000045'),
+    (46, 'Milan Tharaka',         'tg2116@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000016', '200416000046'),
+    (47, 'Oshadi Kavisha',        'tg2117@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000017', '200417000047'),
+    (48, 'Lahiru Maduranga',      'tg2118@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000018', '200418000048'),
+    (49, 'Vimukthi Prabhashana',  'tg2119@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000019', '200419000049'),
+    (50, 'Sanduni Hansika',       'tg2120@std.ruhuna.lk', 'ug123', 'UNDERGRADUATE', '0750000020', '200420000050');
 
 
 INSERT INTO admin (admin_id, user_id) VALUES (1, 1);
@@ -523,7 +525,12 @@ INSERT INTO enrollment (enrollment_id, student_id, course_code, academic_year, s
                                                                                                                       (21, 1,  'ICT2143', '2023/2024', 'S1', '2026-09-28', 'Active'),
                                                                                                                       (22, 2,  'ICT2143', '2023/2024', 'S1', '2026-09-28', 'Active'),
                                                                                                                       (23, 3,  'ICT2143', '2023/2024', 'S1', '2026-09-28', 'Active'),
-                                                                                                                      (24, 4,  'ICT2143', '2023/2024', 'S1', '2026-09-28', 'Active');
+                                                                                                                      (24, 4,  'ICT2143', '2023/2024', 'S1', '2026-09-28', 'Active'),
+                                                                                                                      (25, 1,  'ICT2153', '2023/2024', 'S1', '2026-09-28', 'Active'),
+                                                                                                                      (26, 2,  'ICT2153', '2023/2024', 'S1', '2026-09-28', 'Active'),
+                                                                                                                      (27, 3,  'ICT2153', '2023/2024', 'S1', '2026-09-28', 'Active'),
+                                                                                                                      (28, 4,  'ICT2153', '2023/2024', 'S1', '2026-09-28', 'Active'),
+                                                                                                                      (29, 5,  'ICT2153', '2023/2024', 'S1', '2026-09-28', 'Active');
 
 
 INSERT INTO evaluation (evaluation_id, course_code, evaluation_name, max_marks, percentage, is_ca) VALUES
@@ -533,7 +540,10 @@ INSERT INTO evaluation (evaluation_id, course_code, evaluation_name, max_marks, 
                                                                                                        (4, 'ICT2143', 'Assignment 1',   100, 10, TRUE),
                                                                                                        (5, 'ICT2143', 'Mid Exam',       100, 20, TRUE),
                                                                                                        (6, 'ICT2132', 'Final Exam',     100, 55, FALSE),
-                                                                                                       (7, 'ICT2143', 'Final Exam',     100, 70, FALSE);
+                                                                                                       (7, 'ICT2143', 'Final Exam',     100, 70, FALSE),
+                                                                                                       (8, 'ICT2153', 'Assignment 1',   100, 10, TRUE),
+                                                                                                       (9, 'ICT2153', 'Mid Exam',       100, 20, TRUE),
+                                                                                                       (10, 'ICT2153', 'Final Exam',    100, 70, FALSE);
 
 
 
@@ -580,7 +590,18 @@ INSERT INTO mark (mark_id, evaluation_id, student_id, marks, grade) VALUES
                                                                         (32, 7, 2, 73, 'A-'),
                                                                         (33, 7, 3, 59, 'B-'),
                                                                         (34, 7, 4, 42, 'C-'),
-                                                                        (35, 7, 5, 25, 'E');
+                                                                        (35, 7, 5, 25, 'E'),
+                                                                        -- Synthetic ICT2153 marks cover CA pass/fail examples.
+                                                                        (36, 8, 1, 80, 'A'),
+                                                                        (37, 9, 1, 80, 'A'),
+                                                                        (38, 8, 2, 40, 'C'),
+                                                                        (39, 9, 2, 40, 'C'),
+                                                                        (40, 8, 3, 39, 'D'),
+                                                                        (41, 9, 3, 39, 'D'),
+                                                                        (42, 8, 4, 90, 'A+'),
+                                                                        (43, 9, 4, 30, 'E'),
+                                                                        (44, 8, 5, 30, 'E'),
+                                                                        (45, 9, 5, 30, 'E');
 
 
 INSERT INTO medical (medical_id, student_id, to_id, start_date, end_date, submitted_date, approval_status, document) VALUES
@@ -633,3 +654,29 @@ INSERT INTO attendance_record (attendance_id, course_code, student_id, session_n
                                                                                                                                       (39, 'ICT2132', 7, 4, '2026-10-26', 'Theory',    'Absent',  1, 3),
                                                                                                                                       (40, 'ICT2132', 7, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
                                                                                                                                       (41, 'ICT2132', 7, 2, '2026-10-13', 'Practical', 'Present', 1, NULL);
+
+-- Extra synthetic attendance rows for testing the View Attendance course filter
+-- and per-student attendance percentages.
+INSERT INTO attendance_record
+    (attendance_id, course_code, student_id, session_no, date, session_type, status, to_id, medical_id)
+VALUES
+    (42, 'ICT2153', 1, 1, '2026-10-05', 'Theory',    'Present', 1, NULL),
+    (43, 'ICT2153', 2, 1, '2026-10-05', 'Theory',    'Present', 1, NULL),
+    (44, 'ICT2153', 3, 1, '2026-10-05', 'Theory',    'Present', 1, NULL),
+    (45, 'ICT2153', 4, 1, '2026-10-05', 'Theory',    'Absent',  1, NULL),
+    (46, 'ICT2153', 5, 1, '2026-10-05', 'Theory',    'Absent',  1, NULL),
+    (47, 'ICT2153', 1, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+    (48, 'ICT2153', 2, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+    (49, 'ICT2153', 3, 2, '2026-10-12', 'Theory',    'Absent',  1, NULL),
+    (50, 'ICT2153', 4, 2, '2026-10-12', 'Theory',    'Present', 1, NULL),
+    (51, 'ICT2153', 5, 2, '2026-10-12', 'Theory',    'Absent',  1, NULL),
+    (52, 'ICT2153', 1, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+    (53, 'ICT2153', 2, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+    (54, 'ICT2153', 3, 1, '2026-10-06', 'Practical', 'Present', 1, NULL),
+    (55, 'ICT2153', 4, 1, '2026-10-06', 'Practical', 'Absent',  1, NULL),
+    (56, 'ICT2153', 5, 1, '2026-10-06', 'Practical', 'Absent',  1, NULL),
+    (57, 'ICT2153', 1, 2, '2026-10-13', 'Practical', 'Present', 1, NULL),
+    (58, 'ICT2153', 2, 2, '2026-10-13', 'Practical', 'Absent',  1, NULL),
+    (59, 'ICT2153', 3, 2, '2026-10-13', 'Practical', 'Absent',  1, NULL),
+    (60, 'ICT2153', 4, 2, '2026-10-13', 'Practical', 'Absent',  1, NULL),
+    (61, 'ICT2153', 5, 2, '2026-10-13', 'Practical', 'Absent',  1, NULL);

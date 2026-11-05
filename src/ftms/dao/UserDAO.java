@@ -119,6 +119,7 @@ public class UserDAO {
             default:
                 return null;
         }
+        user.setNic(rs.getString("nic"));
         user.setProfilePicture(rs.getString("profile_picture"));
         return user;
 
@@ -169,10 +170,10 @@ public class UserDAO {
     // Creates a user row AND its role row in ONE transaction.
 // extra = designation (LECTURER) / department_id (TECHNICAL_OFFICER) / registration_no (UNDERGRADUATE)
     public int insertUser(String userName, String email, String hashedPassword,
-                          String role, String contactNo, String extra,Batch batch)
+                          String role, String contactNo, String nic, String extra, Batch batch)
             throws DuplicateUserException {
 
-        String insertUserSql = "INSERT INTO user (user_name, email, password, role, contact_no, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertUserSql = "INSERT INTO user (user_name, email, password, role, contact_no, nic, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection()) {
             conn.setAutoCommit(false);   // user row + role row must succeed together
@@ -186,7 +187,8 @@ public class UserDAO {
                     ps.setString(3, hashedPassword);
                     ps.setString(4, role);
                     ps.setString(5, contactNo);
-                    ps.setString(6, "profile_pics/default.jpg");
+                    ps.setString(6, nic);
+                    ps.setString(7, "profile_pics/default.jpg");
                     ps.executeUpdate();
 
                     try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -201,7 +203,7 @@ public class UserDAO {
                 conn.rollback();
                 if (e instanceof java.sql.SQLIntegrityConstraintViolationException) {
                     throw new DuplicateUserException(
-                            "That email or registration number is already used.");
+                            "That email, NIC, or registration number is already used.");
                 }
                 System.out.println("Error creating user: " + e.getMessage());
                 return -1;

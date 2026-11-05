@@ -8,6 +8,7 @@ public abstract class User {
     private String role;
     private String contactNumber;
     private String profilePicture;
+    private String nic;
 
     public User(){ }
 
@@ -82,6 +83,14 @@ public abstract class User {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public String getNic() {
+        return nic;
+    }
+
+    public void setNic(String nic) {
+        this.nic = nic;
     }
 
     @Override

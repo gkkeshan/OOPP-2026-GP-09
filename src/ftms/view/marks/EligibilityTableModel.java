@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EligibilityTableModel extends AbstractTableModel {
-    private static final String[] COLUMNS = {"Student ID", "Course Code", "CA %", "Eligible"};
+    private static final String[] COLUMNS = {
+            "Student ID", "Course Code", "Attendance %", "CA %", "Eligible"
+    };
     private final List<EligibilityStatus> statuses = new ArrayList<>();
 
     @Override
@@ -27,7 +29,7 @@ public class EligibilityTableModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int column) {
-        return column == 2 ? Double.class : String.class;
+        return column == 2 || column == 3 ? Double.class : String.class;
     }
 
     @Override
@@ -39,17 +41,19 @@ public class EligibilityTableModel extends AbstractTableModel {
             case 1:
                 return status.getCourseCode();
             case 2:
-                return status.getCaPercentage();
+                return status.getAttendancePercentage();
             case 3:
+                return status.getCaPercentage();
+            case 4:
                 return status.isEligible() ? "Eligible" : "Not eligible";
             default:
                 throw new IndexOutOfBoundsException("Unknown eligibility column: " + column);
         }
     }
 
-    public void addStatus(EligibilityStatus status) {
-        int row = statuses.size();
-        statuses.add(status);
-        fireTableRowsInserted(row, row);
+    public void setStatuses(List<EligibilityStatus> newStatuses) {
+        statuses.clear();
+        statuses.addAll(newStatuses);
+        fireTableDataChanged();
     }
 }

@@ -79,6 +79,45 @@ public class AttendanceRecordDAO {
         }
         return records;
     }
+
+    public List<AttendanceRecord> getFiltered(
+            Connection connection, Integer studentId, String courseCode) throws SQLException {
+        List<AttendanceRecord> records = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM attendance_record WHERE 1=1");
+        if (studentId != null) {
+            sql.append(" AND student_id = ?");
+        }
+        if (courseCode != null && !courseCode.isBlank()) {
+            sql.append(" AND course_code LIKE ?");
+        }
+        sql.append(" ORDER BY date, course_code, student_id, session_no");
+
+        try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int parameterIndex = 1;
+            if (studentId != null) {
+                ps.setInt(parameterIndex++, studentId);
+            }
+            if (courseCode != null && !courseCode.isBlank()) {
+                ps.setString(parameterIndex, "%" + courseCode.trim() + "%");
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    records.add(new AttendanceRecord(
+                            rs.getInt("attendance_id"),
+                            rs.getString("course_code"),
+                            rs.getInt("student_id"),
+                            rs.getInt("session_no"),
+                            rs.getDate("date").toLocalDate(),
+                            rs.getString("session_type"),
+                            rs.getString("status"),
+                            rs.getInt("to_id"),
+                            (Integer) rs.getObject("medical_id")));
+                }
+            }
+        }
+        return records;
+    }
+
     /** One AttendanceSummary per student for a whole course (batch summary). */
     public List<AttendanceSummary> getBatchSummaries(String courseCode) throws SQLException {
         String sql = "SELECT student_id, "

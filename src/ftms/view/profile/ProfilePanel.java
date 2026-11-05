@@ -2,6 +2,7 @@ package ftms.view.profile;
 
 import ftms.model.User;
 import ftms.service.ProfileService;
+import ftms.util.NicUtils;
 import ftms.util.SessionManager;
 
 import javax.swing.*;
@@ -18,6 +19,8 @@ public class ProfilePanel extends JPanel {
 
     private final JTextField nameField = new JTextField(15);
     private final JTextField roleField = new JTextField(15);
+    private final JTextField nicField = new JTextField(15);
+    private final JTextField birthDateField = new JTextField(15);
     private final JTextField emailField = new JTextField(15);
     private final JTextField contactField = new JTextField(15);
     private final JTextField pictureField = new JTextField(15);
@@ -27,16 +30,22 @@ public class ProfilePanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JPanel form = new JPanel(new GridLayout(5, 2, 8, 8));
+        JPanel form = new JPanel(new GridLayout(7, 2, 8, 8));
         form.setBorder(BorderFactory.createTitledBorder("My Profile"));
 
         nameField.setEditable(false);   // username locked for EVERY role
         roleField.setEditable(false);
+        nicField.setEditable(false);
+        birthDateField.setEditable(false);
 
         form.add(new JLabel("Username:"));
         form.add(nameField);
         form.add(new JLabel("Role:"));
         form.add(roleField);
+        form.add(new JLabel("NIC:"));
+        form.add(nicField);
+        form.add(new JLabel("Birthday:"));
+        form.add(birthDateField);
         form.add(new JLabel("Email:"));
         form.add(emailField);
         form.add(new JLabel("Contact No:"));
@@ -80,6 +89,12 @@ public class ProfilePanel extends JPanel {
             }
             nameField.setText(u.getUserName());
             roleField.setText(u.getRole());
+            nicField.setText(u.getNic() == null ? "Not provided" : u.getNic());
+            try {
+                birthDateField.setText(NicUtils.formatBirthDate(u.getNic()));
+            } catch (IllegalArgumentException exception) {
+                birthDateField.setText("Not available");
+            }
             emailField.setText(u.getEmail());
             contactField.setText(u.getContactNumber());
             pictureField.setText(u.getProfilePicture());

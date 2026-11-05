@@ -7,13 +7,15 @@ import ftms.util.SessionManager;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class EligibilityPanel extends JPanel {
     private final EligibilityService eligibilityService;
-    private final JTextField studentIdField = new JTextField(10);
     private final JTextField courseCodeField = new JTextField(10);
-    private final JButton checkButton = new JButton("Check Eligibility");
+    private final JButton checkButton = new JButton("Search");
     private final EligibilityTableModel tableModel = new EligibilityTableModel();
+    private final JTable table = new JTable(tableModel);
 
     public EligibilityPanel() {
         this(new EligibilityService());
@@ -28,24 +30,19 @@ public class EligibilityPanel extends JPanel {
         title.setFont(title.getFont().deriveFont(Font.BOLD, 20f));
 
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBorder(BorderFactory.createTitledBorder("Student and Course"));
+        form.setBorder(BorderFactory.createTitledBorder("Filter by Course"));
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(6, 8, 6, 8);
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        form.add(new JLabel("Student ID:"), constraints);
-        constraints.gridx = 1;
-        form.add(studentIdField, constraints);
-        constraints.gridx = 2;
         form.add(new JLabel("Course Code:"), constraints);
-        constraints.gridx = 3;
+        constraints.gridx = 1;
         form.add(courseCodeField, constraints);
-        constraints.gridx = 4;
+        constraints.gridx = 2;
         form.add(checkButton, constraints);
 
-        JTable table = new JTable(tableModel);
         JPanel header = new JPanel(new BorderLayout(8, 8));
         header.add(title, BorderLayout.NORTH);
         header.add(form, BorderLayout.CENTER);
@@ -54,48 +51,34 @@ public class EligibilityPanel extends JPanel {
 
         checkButton.addActionListener(event -> checkEligibility());
 
-        if (SessionManager.isUndergraduate()
-                && SessionManager.getCurrentStudentId() != -1) {
-            studentIdField.setText(SessionManager.getCurrentRegistrationNo());
-            studentIdField.setEditable(false);
-            // no auto-check — the student still types the Course Code
-        }
+        loadEligibility();
     }
 
     private void checkEligibility() {
-        String studentId = SessionManager.isUndergraduate()
-                ? String.valueOf(SessionManager.getCurrentStudentId())
-                : studentIdField.getText().trim();
+        loadEligibility();
+    }
+
+    private void loadEligibility() {
+        Integer studentId = SessionManager.isUndergraduate()
+                ? SessionManager.getCurrentStudentId() : null;
         String courseCode = courseCodeField.getText().trim();
         checkButton.setEnabled(false);
-        new SwingWorker<EligibilityStatus, Void>() {
+        new SwingWorker<List<EligibilityStatus>, Void>() {
             @Override
-            protected EligibilityStatus doInBackground() throws SQLException {
-                return eligibilityService.checkEligibility(studentId, courseCode);
+            protected List<EligibilityStatus> doInBackground() throws SQLException {
+                return eligibilityService.getEligibilityStatuses(studentId, courseCode);
             }
 
             @Override
             protected void done() {
                 checkButton.setEnabled(true);
                 try {
-                    EligibilityStatus status = get();
-                    tableModel.addStatus(status);
-                    if (status.isEligible()) {
-                        showMessage(String.format(
-                                        "Eligible for the final examination (Attendance %.2f%%, CA %.2f%%).",
-                                        status.getAttendancePercentage(), status.getCaPercentage()),
-                                "Eligible", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        showMessage(status.getFailureReason()
-                                        + String.format(" (Attendance %.2f%%, CA %.2f%%).",
-                                        status.getAttendancePercentage(), status.getCaPercentage()),
-                                "Not Eligible", JOptionPane.WARNING_MESSAGE);
-                    }
+                    tableModel.setStatuses(get());
                 } catch (InterruptedException exception) {
                     Thread.currentThread().interrupt();
                     showMessage("Eligibility check was interrupted.", "Error",
                             JOptionPane.ERROR_MESSAGE);
-                } catch (java.util.concurrent.ExecutionException exception) {
+                } catch (ExecutionException exception) {
                     Throwable cause = exception.getCause();
                     showMessage(cause == null ? exception.getMessage() : cause.getMessage(),
                             "Eligibility Error", JOptionPane.ERROR_MESSAGE);

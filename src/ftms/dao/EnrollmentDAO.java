@@ -6,8 +6,10 @@ import ftms.model.EnrollmentStatus;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class EnrollmentDAO {
 
@@ -113,6 +115,38 @@ public class EnrollmentDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Could not check enrollment Exists: " + e.getMessage(), e);
         }
+    }
+
+    public List<Map.Entry<Integer, String>> findEligibilityTargets(
+            Integer studentId, String courseCode) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT DISTINCT student_id, course_code FROM enrollment WHERE status <> 'Dropped'");
+        if (studentId != null) {
+            sql.append(" AND student_id = ?");
+        }
+        if (courseCode != null && !courseCode.isBlank()) {
+            sql.append(" AND course_code LIKE ?");
+        }
+        sql.append(" ORDER BY course_code, student_id");
+
+        List<Map.Entry<Integer, String>> targets = new ArrayList<>();
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+            int parameterIndex = 1;
+            if (studentId != null) {
+                ps.setInt(parameterIndex++, studentId);
+            }
+            if (courseCode != null && !courseCode.isBlank()) {
+                ps.setString(parameterIndex, "%" + courseCode.trim() + "%");
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    targets.add(new AbstractMap.SimpleImmutableEntry<>(
+                            rs.getInt("student_id"), rs.getString("course_code")));
+                }
+            }
+        }
+        return targets;
     }
 
     private Enrollment mapRow(ResultSet rs) throws SQLException {

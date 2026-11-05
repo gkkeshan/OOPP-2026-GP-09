@@ -26,20 +26,22 @@ public class AttendanceService {
     // Get attendance records for a student and course by registration number.
     public List<AttendanceRecord> getAttendance(
             String registrationNo, String courseCode) throws SQLException {
-
-        Connection connection = DBConnection.getConnection();
-
-        if (connection == null) {
-            throw new SQLException("Database connection failed.");
+        Integer studentId = null;
+        if (registrationNo != null && !registrationNo.isBlank()) {
+            int resolvedStudentId = userDAO.getStudentIdByRegistrationNo(registrationNo.trim());
+            if (resolvedStudentId == -1) {
+                throw new SQLException("Student not found with registration number: "
+                        + registrationNo);
+            }
+            studentId = resolvedStudentId;
         }
 
-        int studentId = userDAO.getStudentIdByRegistrationNo(registrationNo);
-        if (studentId == -1) {
-            throw new SQLException("Student not found with registration number: " + registrationNo);
+        try (Connection connection = DBConnection.getConnection()) {
+            if (connection == null) {
+                throw new SQLException("Database connection failed.");
+            }
+            return attendanceRecordDAO.getFiltered(connection, studentId, courseCode);
         }
-
-        return attendanceRecordDAO.getByStudentAndCourse(
-                connection, studentId, courseCode);
     }
 
     // Get attendance records for a student and course by student ID (legacy method).
@@ -225,4 +227,3 @@ public class AttendanceService {
         return present * 100.0 / total;
     }
 }
-

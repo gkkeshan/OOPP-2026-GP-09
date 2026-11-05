@@ -29,7 +29,7 @@ public class ResultsSheetPanel extends JPanel {
 
         JPanel search = new JPanel(new FlowLayout(FlowLayout.LEFT));
         search.setBorder(BorderFactory.createTitledBorder("Find Student Results"));
-        search.add(new JLabel("Student ID:"));
+        search.add(new JLabel("Registration number:"));
         search.add(studentIdField);
         search.add(loadButton);
         JPanel header = new JPanel(new BorderLayout(8, 8));

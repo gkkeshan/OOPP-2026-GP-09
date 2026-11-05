@@ -7,6 +7,7 @@ import ftms.model.Batch;
 import ftms.model.Department;
 import ftms.model.User;
 import ftms.service.UserService;
+import ftms.util.NicUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -134,6 +135,22 @@ public class UserManagementPanel extends JPanel {
         JTextField email = new JTextField();
         JTextField password = new JTextField();
         JTextField contact = new JTextField();
+        JTextField nic = new JTextField();
+        JTextField birthDate = new JTextField();
+        birthDate.setEditable(false);
+        nic.getDocument().addDocumentListener(new DocumentListener() {
+            private void updateBirthDate() {
+                try {
+                    birthDate.setText(NicUtils.formatBirthDate(nic.getText()));
+                } catch (IllegalArgumentException exception) {
+                    birthDate.setText("");
+                }
+            }
+
+            @Override public void insertUpdate(DocumentEvent e) { updateBirthDate(); }
+            @Override public void removeUpdate(DocumentEvent e) { updateBirthDate(); }
+            @Override public void changedUpdate(DocumentEvent e) { updateBirthDate(); }
+        });
         JLabel extraLabel = new JLabel("(not needed)");
         JTextField extra = new JTextField();
 
@@ -175,12 +192,14 @@ public class UserManagementPanel extends JPanel {
         roleBox.addActionListener(e -> updateRoleFields.run());
         updateRoleFields.run();   // apply initial state (ADMIN)
 
-        JPanel form = new JPanel(new GridLayout(7, 2, 8, 8));
+        JPanel form = new JPanel(new GridLayout(9, 2, 8, 8));
         form.add(new JLabel("Name:"));        form.add(name);
         form.add(new JLabel("Email:"));       form.add(email);
         form.add(new JLabel("Password:"));    form.add(password);
         form.add(new JLabel("Role:"));        form.add(roleBox);
         form.add(new JLabel("Contact No:"));  form.add(contact);
+        form.add(new JLabel("NIC:"));         form.add(nic);
+        form.add(new JLabel("Birthday (from NIC):")); form.add(birthDate);
         form.add(extraLabel);                 form.add(extra);
         form.add(batchLabel);                 form.add(batchBox);
 
@@ -195,10 +214,17 @@ public class UserManagementPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Select a batch for the student.");
                     continue;   // dialog stays open
                 }
+                try {
+                    NicUtils.getBirthDate(nic.getText());
+                } catch (IllegalArgumentException exception) {
+                    JOptionPane.showMessageDialog(this, exception.getMessage(),
+                            "Invalid NIC", JOptionPane.WARNING_MESSAGE);
+                    continue;
+                }
                 Batch selectedBatch = student ? (Batch) batchBox.getSelectedItem() : null;
                 boolean ok = userService.createUser(name.getText(), email.getText(),
                         password.getText(), role,
-                        contact.getText(), extra.getText(), selectedBatch);
+                        contact.getText(), nic.getText(), extra.getText(), selectedBatch);
                 if (ok) {
                     JOptionPane.showMessageDialog(this, "User created!");
                     loadUsers();
