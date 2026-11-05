@@ -57,10 +57,12 @@ public class DashboardDAO {
         }
     }
 
-    /** Attendance percentage; null when the student has no attendance records. */
+    /** Overall attendance % across ALL courses (medically excused sessions are
+     *  excluded, same rule as the attendance view / eligibility). Rounded.
+     *  Null when the student has no attendance records. */
     public Integer attendancePercent(int studentId) throws SQLException {
         String sql = "SELECT ROUND(100.0 * SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) / COUNT(*)) "
-                + "FROM attendance_record WHERE student_id = ?";
+                + "FROM attendance_record WHERE student_id = ? AND medical_id IS NULL";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, studentId);
