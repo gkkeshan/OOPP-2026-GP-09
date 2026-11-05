@@ -8,7 +8,7 @@ import java.util.List;
 public class MedicalTableModel extends AbstractTableModel {
 
     private final String[] columns = {
-            "Medical ID", "Student ID", "TO ID",
+            "Medical ID", "Registration No", "TO ID",
             "Start Date", "End Date", "Submitted Date",
             "Approval Status", "Document"
     };
@@ -40,7 +40,9 @@ public class MedicalTableModel extends AbstractTableModel {
 
         switch (col) {
             case 0: return m.getMedicalId();
-            case 1: return m.getStudentId();
+            case 1: return m.getRegistrationNo() != null
+                    ? m.getRegistrationNo()
+                    : m.getStudentId();      // fallback if the join found nothing
             case 2: return m.getToId();
             case 3: return m.getStartDate();
             case 4: return m.getEndDate();
@@ -51,4 +53,3 @@ public class MedicalTableModel extends AbstractTableModel {
         }
     }
 }
-

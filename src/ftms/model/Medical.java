@@ -13,6 +13,7 @@ public class Medical {
     private LocalDate submittedDate;
     private String approvalStatus;
     private String document;
+    private String registrationNo;
 
     public Medical() {
         this.approvalStatus = "Pending";
@@ -82,6 +83,14 @@ public class Medical {
 
     public String getApprovalStatus() {
         return approvalStatus;
+    }
+
+    public String getRegistrationNo() {
+        return registrationNo;
+    }
+
+    public void setRegistrationNo(String registrationNo) {
+        this.registrationNo = registrationNo;
     }
 
     public void setApprovalStatus(String approvalStatus) {

@@ -12,7 +12,7 @@ import java.awt.*;
 public class UndergraduateDashboardPanel extends JPanel {
     private final DashboardService dashboardService = new DashboardService();
     private final StatCard cgpaCard = new StatCard("--", "Latest CGPA");
-    private final StatCard attendanceCard = new StatCard("--", "Attendance %");
+    private final StatCard attendanceCard = new StatCard("--", "Overall Attendance %");
     private final StatCard coursesCard = new StatCard("--", "Active Courses");
     private final StatCard medicalCard = new StatCard("--", "Pending Medicals");
 
