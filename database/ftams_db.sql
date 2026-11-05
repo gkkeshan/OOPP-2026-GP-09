@@ -131,14 +131,20 @@ CREATE TABLE course (
                         has_practical   BOOLEAN      NOT NULL DEFAULT FALSE,
                         lecturer_id     INT          NOT NULL,
                         department_id   INT          NOT NULL,
+                        level           INT          NOT NULL,
+                        batch_id        INT          NOT NULL,
                         CONSTRAINT pk_course PRIMARY KEY (course_code),
                         CONSTRAINT ck_course_credit CHECK (credit_hours BETWEEN 1 AND 6),
+                        CONSTRAINT ck_course_level CHECK (level BETWEEN 1 AND 4),
                         CONSTRAINT ck_course_type CHECK (has_theory = TRUE OR has_practical = TRUE),
                         CONSTRAINT fk_course_lecturer FOREIGN KEY (lecturer_id)
                             REFERENCES lecturer (lecturer_id)
                             ON DELETE RESTRICT ON UPDATE CASCADE,
                         CONSTRAINT fk_course_department FOREIGN KEY (department_id)
                             REFERENCES department (department_id)
+                            ON DELETE RESTRICT ON UPDATE CASCADE,
+                        CONSTRAINT fk_course_batch FOREIGN KEY (batch_id)
+                            REFERENCES batch (batch_id)
                             ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
@@ -422,7 +428,8 @@ INSERT INTO technical_officer (to_id, user_id, department_id) VALUES
 INSERT INTO batch (batch_id, batch_name, academic_year, department_id) VALUES
                                                                            (1, 'Batch 09', '2023/2024', 1),
                                                                            (2, 'Batch 10', '2024/2025', 1),
-                                                                           (3, 'Batch 09', '2023/2024', 2);
+                                                                           (3, 'Batch 09', '2023/2024', 2),
+                                                                           (4, 'Batch 09', '2023/2024', 3);
 
 INSERT INTO undergraduate (student_id, user_id, registration_no, batch, academic_year, batch_id) VALUES
                                                                                                      (1,  31, 'TG2101', '09', '2023/2024', 1),
@@ -447,13 +454,13 @@ INSERT INTO undergraduate (student_id, user_id, registration_no, batch, academic
                                                                                                      (20, 50, 'TG2120', '09', '2023/2024', 1);
 
 
-INSERT INTO course (course_code, course_name, credit_hours, has_theory, has_practical, lecturer_id, department_id) VALUES
-                                                                                                                       ('ICT2132', 'Object Oriented Programming Practicum', 3, TRUE,  TRUE,  1, 1),
-                                                                                                                       ('ICT2143', 'Database Management Systems',             3, TRUE,  TRUE,  2, 1),
-                                                                                                                       ('ICT2153', 'Data Structures and Algorithms',         3, TRUE,  FALSE, 3, 1),
-                                                                                                                       ('ICT2162', 'Web Technologies',                      2, TRUE,  TRUE,  4, 1),
-                                                                                                                       ('AGT2132', 'Principles of Crop Science',             2, TRUE,  FALSE, 5, 2),
-                                                                                                                       ('BST2132', 'Cell Biology',                          2, TRUE,  TRUE,  3, 3);
+INSERT INTO course (course_code, course_name, credit_hours, has_theory, has_practical, lecturer_id, department_id, level, batch_id) VALUES
+                                                                                                                       ('ICT2132', 'Object Oriented Programming Practicum', 2, TRUE,  TRUE,  1, 1, 2, 1),
+                                                                                                                       ('ICT2143', 'Database Management Systems',             3, TRUE,  TRUE,  2, 1, 2, 1),
+                                                                                                                       ('ICT2153', 'Data Structures and Algorithms',         3, TRUE,  FALSE, 3, 1, 2, 1),
+                                                                                                                       ('ICT2162', 'Web Technologies',                      2, TRUE,  TRUE,  4, 1, 2, 1),
+                                                                                                                       ('AGT2132', 'Principles of Crop Science',             2, TRUE,  FALSE, 5, 2, 2, 3),
+                                                                                                                       ('BST2132', 'Cell Biology',                          2, TRUE,  TRUE,  3, 3, 2, 4);
 
 
 

@@ -10,15 +10,44 @@ public class Course extends BaseEntity {
     private boolean hasPractical;
     private int lecturerId;
     private int departmentId;
+    private int level;
+    private int batchId;
 
     public Course(String courseCode, String courseName, int creditHours,
-                  boolean hasTheory, boolean hasPractical, int lecturerId, int departmentId) {
+                  boolean hasTheory, boolean hasPractical, int lecturerId, int departmentId,
+                  int level, int batchId) {
         setCourseCode(courseCode);
         setCourseName(courseName);
         setCreditHours(creditHours);
         setCourseType(hasTheory, hasPractical);
         setLecturerId(lecturerId);
         setDepartmentId(departmentId);
+        setLevel(level);
+        setBatchId(batchId);
+    }
+
+    public static int levelFromCode(String courseCode) {
+        String code = requireText(courseCode, "Course code", 10).toUpperCase();
+        if (code.length() < 7 || !Character.isDigit(code.charAt(3))) {
+            throw new IllegalArgumentException("Course code must contain a level digit, e.g. ICT2132");
+        }
+        int level = Character.getNumericValue(code.charAt(3));
+        if (level < 1 || level > 4) {
+            throw new IllegalArgumentException("Course level must be between 1 and 4");
+        }
+        return level;
+    }
+
+    public static int creditFromCode(String courseCode) {
+        String code = requireText(courseCode, "Course code", 10).toUpperCase();
+        if (code.length() < 7 || !Character.isDigit(code.charAt(code.length() - 1))) {
+            throw new IllegalArgumentException("Course code must end with a credit digit, e.g. ICT2132");
+        }
+        int credit = Character.getNumericValue(code.charAt(code.length() - 1));
+        if (credit < 1 || credit > 6) {
+            throw new IllegalArgumentException("Course credit must be between 1 and 6");
+        }
+        return credit;
     }
 
     public String getCourseCode() { return courseCode; }
@@ -60,6 +89,15 @@ public class Course extends BaseEntity {
     public void setDepartmentId(int departmentId) {
         if (departmentId <= 0) throw new IllegalArgumentException("A course must belong to a department");
         this.departmentId = departmentId;
+    }
+
+    public int getLevel() { return level; }
+    public void setLevel(int level) { this.level = requireInRange(level, 1, 4, "Course level"); }
+
+    public int getBatchId() { return batchId; }
+    public void setBatchId(int batchId) {
+        if (batchId <= 0) throw new IllegalArgumentException("A course must belong to a batch");
+        this.batchId = batchId;
     }
 
     @Override public Object getId() { return courseCode; }

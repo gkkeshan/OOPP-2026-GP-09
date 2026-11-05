@@ -1,8 +1,10 @@
 package ftms.service;
 
+import ftms.dao.BatchDAO;
 import ftms.dao.CourseDAO;
 import ftms.dao.DepartmentDAO;
 import ftms.exception.CourseNotFoundException;
+import ftms.model.Batch;
 import ftms.model.Course;
 import ftms.model.Department;
 import ftms.model.EnrolledCourse;
@@ -13,6 +15,7 @@ public class CourseService {
 
     private CourseDAO courseDAO = new CourseDAO();
     private DepartmentDAO departmentDAO = new DepartmentDAO();
+    private BatchDAO batchDAO = new BatchDAO();
 
     public List<Course> getAllCourses() {
         return courseDAO.findAll();
@@ -30,6 +33,7 @@ public class CourseService {
         if (courseDAO.existsById(course.getCourseCode())) {
             throw new IllegalArgumentException("Course code already exists: " + course.getCourseCode());
         }
+        validateBatchDepartment(course);
         courseDAO.insert(course);
     }
 
@@ -37,6 +41,7 @@ public class CourseService {
         if (!courseDAO.existsById(course.getCourseCode())) {
             throw new CourseNotFoundException("Course not found: " + course.getCourseCode());
         }
+        validateBatchDepartment(course);
         courseDAO.update(course);
     }
 
@@ -51,6 +56,19 @@ public class CourseService {
 
     public List<Department> getDepartments() {
         return departmentDAO.findAll();
+    }
+
+    public String getDepartmentName(int departmentId) {
+        Department department = departmentDAO.findById(departmentId);
+        return department == null ? "Unknown department" : department.getDepartmentName();
+    }
+
+    public List<Batch> getBatches() {
+        return batchDAO.findAll();
+    }
+
+    public List<Batch> getBatchesByDepartment(int departmentId) {
+        return batchDAO.findByDepartment(departmentId);
     }
 
     public Department addDepartment(String departmentName) {
@@ -93,6 +111,16 @@ public class CourseService {
     }
     public List<EnrolledCourse> getEnrolledCourseDetails(int userId) {
         return courseDAO.findEnrolledCoursesByStudent(userId);
+    }
+
+    private void validateBatchDepartment(Course course) {
+        Batch batch = batchDAO.findById(course.getBatchId());
+        if (batch == null) {
+            throw new IllegalArgumentException("Selected batch does not exist.");
+        }
+        if (batch.getDepartmentId() != course.getDepartmentId()) {
+            throw new IllegalArgumentException("Selected batch does not belong to the selected department.");
+        }
     }
 
     // Module-based course enrollment filtered by department and batch

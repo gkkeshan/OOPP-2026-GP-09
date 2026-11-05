@@ -13,7 +13,8 @@ public class CourseDAO {
 
     public boolean insert(Course c) {
         String sql = "INSERT INTO course (course_code, course_name, credit_hours, "
-                + "has_theory, has_practical, lecturer_id, department_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                + "has_theory, has_practical, lecturer_id, department_id, level, batch_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, c.getCourseCode());
@@ -23,6 +24,8 @@ public class CourseDAO {
             ps.setBoolean(5, c.isHasPractical());
             ps.setInt(6, c.getLecturerId());
             ps.setInt(7, c.getDepartmentId());
+            ps.setInt(8, c.getLevel());
+            ps.setInt(9, c.getBatchId());
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
             throw new RuntimeException("Could not save course: " + e.getMessage(), e);
@@ -86,14 +89,16 @@ public class CourseDAO {
     }
 
     public List<Course> findByDepartmentAndBatch(int departmentId, int batchId) {
-        String sql = "SELECT c.* FROM course c " +
-                "JOIN course_module cm ON c.course_code = cm.course_code " +
-                "WHERE c.department_id = ? AND cm.batch_no = ? ORDER BY c.course_code";
+        String sql = "SELECT c.* FROM course c "
+                + "WHERE c.department_id = ? AND (c.batch_id = ? OR EXISTS ("
+                + "SELECT 1 FROM course_module cm WHERE cm.course_code = c.course_code AND cm.batch_no = ?)) "
+                + "ORDER BY c.course_code";
         List<Course> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, departmentId);
             ps.setInt(2, batchId);
+            ps.setInt(3, batchId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) list.add(mapRow(rs));
             }
@@ -170,7 +175,8 @@ public class CourseDAO {
 
     public boolean update(Course c) {
         String sql = "UPDATE course SET course_name = ?, credit_hours = ?, has_theory = ?, "
-                + "has_practical = ?, lecturer_id = ?, department_id = ? WHERE course_code = ?";
+                + "has_practical = ?, lecturer_id = ?, department_id = ?, level = ?, batch_id = ? "
+                + "WHERE course_code = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, c.getCourseName());
@@ -179,7 +185,9 @@ public class CourseDAO {
             ps.setBoolean(4, c.isHasPractical());
             ps.setInt(5, c.getLecturerId());
             ps.setInt(6, c.getDepartmentId());
-            ps.setString(7, c.getCourseCode());
+            ps.setInt(7, c.getLevel());
+            ps.setInt(8, c.getBatchId());
+            ps.setString(9, c.getCourseCode());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Could not update course: " + e.getMessage(), e);
@@ -205,6 +213,8 @@ public class CourseDAO {
                 rs.getBoolean("has_theory"),
                 rs.getBoolean("has_practical"),
                 rs.getInt("lecturer_id"),
-                rs.getInt("department_id"));
+                rs.getInt("department_id"),
+                rs.getInt("level"),
+                rs.getInt("batch_id"));
     }
 }

@@ -1,11 +1,15 @@
 package ftms.view.course;
 
 import ftms.exception.CourseNotFoundException;
+import ftms.model.Batch;
 import ftms.model.Course;
 import ftms.service.CourseService;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CourseManagementPanel extends JPanel {
@@ -16,11 +20,14 @@ public class CourseManagementPanel extends JPanel {
 
     private JTextField txtCode = new JTextField(12);
     private JTextField txtName = new JTextField(16);
+    private JTextField txtLevel = new JTextField(4);
     private JTextField txtCredits = new JTextField(4);
+    private JComboBox<String> cmbBatch = new JComboBox<>();
     private JCheckBox chkTheory = new JCheckBox("Theory");
     private JCheckBox chkPractical = new JCheckBox("Practical");
     private JTextField txtLecturerId = new JTextField(6);
     private JTextField txtDeptId = new JTextField(6);
+    private List<Batch> batchList = new ArrayList<>();
 
     private JButton btnAdd = new JButton("Add");
     private JButton btnUpdate = new JButton("Update");
@@ -32,6 +39,19 @@ public class CourseManagementPanel extends JPanel {
 
     public CourseManagementPanel() {
         courseService = new CourseService();
+        txtLevel.setEditable(false);
+        txtCredits.setEditable(false);
+        loadBatches();
+        txtCode.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { updateCalculatedFields(); }
+            @Override public void removeUpdate(DocumentEvent e) { updateCalculatedFields(); }
+            @Override public void changedUpdate(DocumentEvent e) { updateCalculatedFields(); }
+        });
+        txtDeptId.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { loadBatches(); }
+            @Override public void removeUpdate(DocumentEvent e) { loadBatches(); }
+            @Override public void changedUpdate(DocumentEvent e) { loadBatches(); }
+        });
         setLayout(new BorderLayout(10, 10));
 
         // 1. Title Header
@@ -44,7 +64,7 @@ public class CourseManagementPanel extends JPanel {
 
         // 3. Table and ScrollPane in Center
         List<Course> courseList = courseService.getAllCourses();
-        tableModel = new CourseTableModel(courseList);
+        tableModel = new CourseTableModel(courseList, courseService.getBatches());
         courseTable = new JTable(tableModel);
         courseTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         courseTable.getSelectionModel().addListSelectionListener(e -> {
@@ -93,12 +113,24 @@ public class CourseManagementPanel extends JPanel {
 
         g.gridx = 0;
         g.gridy = 2;
+        form.add(new JLabel("Level:"), g);
+        g.gridx = 1;
+        form.add(txtLevel, g);
+
+        g.gridx = 0;
+        g.gridy = 3;
         form.add(new JLabel("Credits:"), g);
         g.gridx = 1;
         form.add(txtCredits, g);
 
         g.gridx = 0;
-        g.gridy = 3;
+        g.gridy = 4;
+        form.add(new JLabel("Batch:"), g);
+        g.gridx = 1;
+        form.add(cmbBatch, g);
+
+        g.gridx = 0;
+        g.gridy = 5;
         form.add(new JLabel("Type:"), g);
         JPanel typeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         typeRow.add(chkTheory);
@@ -107,13 +139,13 @@ public class CourseManagementPanel extends JPanel {
         form.add(typeRow, g);
 
         g.gridx = 0;
-        g.gridy = 4;
+        g.gridy = 6;
         form.add(new JLabel("Lecturer ID:"), g);
         g.gridx = 1;
         form.add(txtLecturerId, g);
 
         g.gridx = 0;
-        g.gridy = 5;
+        g.gridy = 7;
         form.add(new JLabel("Department ID:"), g);
         g.gridx = 1;
         form.add(txtDeptId, g);
@@ -213,12 +245,65 @@ public class CourseManagementPanel extends JPanel {
         if (name.isEmpty()) {
             throw new IllegalArgumentException("Course name cannot be empty.");
         }
-        int credits = parseNumber(txtCredits.getText().trim(), "Credits");
+        int credits = Course.creditFromCode(code);
+        int level = Course.levelFromCode(code);
+        Batch batch = selectedBatch();
+        if (batch == null) {
+            throw new IllegalArgumentException("Please select a batch.");
+        }
         int lecturerId = parseNumber(txtLecturerId.getText().trim(), "Lecturer ID");
         int departmentId = parseNumber(txtDeptId.getText().trim(), "Department ID");
         return new Course(code, name, credits,
                 chkTheory.isSelected(), chkPractical.isSelected(),
-                lecturerId, departmentId);
+                lecturerId, departmentId, level, batch.getBatchId());
+    }
+
+    private Batch selectedBatch() {
+        int index = cmbBatch.getSelectedIndex();
+        return index >= 0 && index < batchList.size() ? batchList.get(index) : null;
+    }
+
+    private void loadBatches() {
+        cmbBatch.removeAllItems();
+        batchList.clear();
+        int departmentId = parseDepartmentId();
+        List<Batch> batches = departmentId > 0
+                ? courseService.getBatchesByDepartment(departmentId)
+                : courseService.getBatches();
+        for (Batch batch : batches) {
+            batchList.add(batch);
+            cmbBatch.addItem(batch.getBatchId() + " - " + batch.display() + " - "
+                    + courseService.getDepartmentName(batch.getDepartmentId()));
+        }
+    }
+
+    private int parseDepartmentId() {
+        try {
+            return Integer.parseInt(txtDeptId.getText().trim());
+        } catch (NumberFormatException ex) {
+            return -1;
+        }
+    }
+
+    private void selectBatch(int batchId) {
+        for (int i = 0; i < batchList.size(); i++) {
+            if (batchList.get(i).getBatchId() == batchId) {
+                cmbBatch.setSelectedIndex(i);
+                return;
+            }
+        }
+        cmbBatch.setSelectedIndex(-1);
+    }
+
+    private void updateCalculatedFields() {
+        String code = txtCode.getText().trim().toUpperCase();
+        try {
+            txtLevel.setText(String.valueOf(Course.levelFromCode(code)));
+            txtCredits.setText(String.valueOf(Course.creditFromCode(code)));
+        } catch (IllegalArgumentException ex) {
+            txtLevel.setText("");
+            txtCredits.setText("");
+        }
     }
 
     private int parseNumber(String text, String field) {
@@ -237,11 +322,14 @@ public class CourseManagementPanel extends JPanel {
         selectedCourse = tableModel.getCourseAt(row);
         txtCode.setText(selectedCourse.getCourseCode());
         txtName.setText(selectedCourse.getCourseName());
+        txtLevel.setText(String.valueOf(selectedCourse.getLevel()));
         txtCredits.setText(String.valueOf(selectedCourse.getCreditHours()));
         chkTheory.setSelected(selectedCourse.isHasTheory());
         chkPractical.setSelected(selectedCourse.isHasPractical());
         txtLecturerId.setText(String.valueOf(selectedCourse.getLecturerId()));
         txtDeptId.setText(String.valueOf(selectedCourse.getDepartmentId()));
+        loadBatches();
+        selectBatch(selectedCourse.getBatchId());
         txtCode.setEditable(false);
     }
 
@@ -249,18 +337,20 @@ public class CourseManagementPanel extends JPanel {
         selectedCourse = null;
         txtCode.setText("");
         txtName.setText("");
+        txtLevel.setText("");
         txtCredits.setText("");
         chkTheory.setSelected(false);
         chkPractical.setSelected(false);
         txtLecturerId.setText("");
         txtDeptId.setText("");
+        cmbBatch.setSelectedIndex(-1);
         txtCode.setEditable(true);
         courseTable.clearSelection();
     }
 
     private void refreshTable() {
         try {
-            tableModel = new CourseTableModel(courseService.getAllCourses());
+            tableModel = new CourseTableModel(courseService.getAllCourses(), courseService.getBatches());
             courseTable.setModel(tableModel);
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(this,
