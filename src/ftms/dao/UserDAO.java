@@ -166,16 +166,37 @@ public class UserDAO {
         }
     }
 
-    // Creates a user row AND its role row in ONE transaction.
-// extra = designation (LECTURER) / department_id (TECHNICAL_OFFICER) / registration_no (UNDERGRADUATE)
+    /**
+     * Creates a user row AND its role row in ONE transaction.
+     *
+     * This method inserts into the user table and the corresponding role-specific table
+     * (admin, lecturer, technical_officer, or undergraduate) in a single transaction.
+     * If either insertion fails, both are rolled back.
+     *
+     * @param userName User's full name
+     * @param email User's email address
+     * @param hashedPassword Hashed password (already processed by PasswordHasher)
+     * @param role User's role (ADMIN, LECTURER, TECHNICAL_OFFICER, UNDERGRADUATE)
+     * @param contactNo User's contact number (can be null)
+     * @param extra Role-specific field:
+     *               - For LECTURER: designation (e.g., "Senior Lecturer")
+     *               - For TECHNICAL_OFFICER: department_id (as string)
+     *               - For UNDERGRADUATE: registration_no
+     *               - For ADMIN: not used
+     * @param batch Batch object (required only for UNDERGRADUATE, null for others)
+     * @param profilePicture Relative path to profile picture (e.g., "profile_pics/profile_123.jpg")
+     * @return The generated user_id if successful, -1 if failed
+     * @throws DuplicateUserException if email or registration number already exists
+     */
     public int insertUser(String userName, String email, String hashedPassword,
-                          String role, String contactNo, String extra,Batch batch)
+                          String role, String contactNo, String extra, Batch batch, String profilePicture)
             throws DuplicateUserException {
 
+        // SQL to insert into user table with profile picture
         String insertUserSql = "INSERT INTO user (user_name, email, password, role, contact_no, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);   // user row + role row must succeed together
+            conn.setAutoCommit(false);   // Disable auto-commit to ensure both user and role rows succeed together
 
             int newUserId;
             try {
@@ -186,7 +207,7 @@ public class UserDAO {
                     ps.setString(3, hashedPassword);
                     ps.setString(4, role);
                     ps.setString(5, contactNo);
-                    ps.setString(6, "profile_pics/default.jpg");
+                    ps.setString(6, profilePicture);  // Store the profile picture path
                     ps.executeUpdate();
 
                     try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -195,10 +216,14 @@ public class UserDAO {
                 }
                 if (newUserId == -1) throw new SQLException("Could not read the new user id.");
 
+                // Insert into the role-specific table (lecturer, technical_officer, undergraduate, or admin)
                 insertRoleRow(conn, role, newUserId, extra, batch);
+                // Commit transaction only if both insertions succeed
                 conn.commit();
             } catch (Exception e) {
+                // Rollback transaction if any error occurs
                 conn.rollback();
+                // Check if the error is due to duplicate email or registration number
                 if (e instanceof java.sql.SQLIntegrityConstraintViolationException) {
                     throw new DuplicateUserException(
                             "That email or registration number is already used.");

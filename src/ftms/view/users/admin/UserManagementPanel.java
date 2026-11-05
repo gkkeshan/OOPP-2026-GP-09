@@ -137,6 +137,23 @@ public class UserManagementPanel extends JPanel {
         JLabel extraLabel = new JLabel("(not needed)");
         JTextField extra = new JTextField();
 
+        // Profile picture upload - allows admin to select an image file for the new user
+        JLabel profilePicLabel = new JLabel("Profile Picture:");
+        JTextField profilePicPath = new JTextField();
+        profilePicPath.setEditable(false);  // Read-only field to display selected file path
+        JButton browseButton = new JButton("Browse...");
+        browseButton.addActionListener(e -> {
+            // Open file chooser dialog filtered to show only image files
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                    "Image files", "jpg", "jpeg", "png", "gif"));
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                // Store the absolute path of the selected image file
+                profilePicPath.setText(fileChooser.getSelectedFile().getAbsolutePath());
+            }
+        });
+
         // Batch dropdown — used only when the role is UNDERGRADUATE
         JComboBox<Batch> batchBox = new JComboBox<>();
         Map<Integer, String> deptNames = new HashMap<>();
@@ -175,7 +192,8 @@ public class UserManagementPanel extends JPanel {
         roleBox.addActionListener(e -> updateRoleFields.run());
         updateRoleFields.run();   // apply initial state (ADMIN)
 
-        JPanel form = new JPanel(new GridLayout(7, 2, 8, 8));
+        // Create form panel with 8 rows (increased from 7 to accommodate profile picture field)
+        JPanel form = new JPanel(new GridLayout(8, 2, 8, 8));
         form.add(new JLabel("Name:"));        form.add(name);
         form.add(new JLabel("Email:"));       form.add(email);
         form.add(new JLabel("Password:"));    form.add(password);
@@ -183,6 +201,12 @@ public class UserManagementPanel extends JPanel {
         form.add(new JLabel("Contact No:"));  form.add(contact);
         form.add(extraLabel);                 form.add(extra);
         form.add(batchLabel);                 form.add(batchBox);
+        // Add profile picture field - combines label, text field, and browse button
+        form.add(profilePicLabel);
+        JPanel profilePicPanel = new JPanel(new BorderLayout(5, 0));
+        profilePicPanel.add(profilePicPath, BorderLayout.CENTER);
+        profilePicPanel.add(browseButton, BorderLayout.EAST);
+        form.add(profilePicPanel);
 
         while (true) {
             int choice = JOptionPane.showConfirmDialog(this, form, "Create User",
@@ -196,9 +220,10 @@ public class UserManagementPanel extends JPanel {
                     continue;   // dialog stays open
                 }
                 Batch selectedBatch = student ? (Batch) batchBox.getSelectedItem() : null;
+                // Pass the profile picture file path to the service layer for processing
                 boolean ok = userService.createUser(name.getText(), email.getText(),
                         password.getText(), role,
-                        contact.getText(), extra.getText(), selectedBatch);
+                        contact.getText(), extra.getText(), selectedBatch, profilePicPath.getText());
                 if (ok) {
                     JOptionPane.showMessageDialog(this, "User created!");
                     loadUsers();
